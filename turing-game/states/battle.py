@@ -8,12 +8,14 @@ class BattleState(BaseState):
     def __init__(self, manager, return_to_state=None, system=None):
         super().__init__(manager)
         self.return_to_state = return_to_state
+
         if system is not None:
-           self.system = system
+            self.system = system
         else:
             self.system = BattleSystem()
 
-        self.ui = BattleUI(self.game.font, self.game.big_font) 
+        self.ui = BattleUI(self.game.font, self.game.big_font)
+
         self.selected_move = 0 
         self.enemy_action_delay = 0.55 
         self.enemy_timer = 0.0
