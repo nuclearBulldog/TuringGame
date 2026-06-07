@@ -1,4 +1,6 @@
 import pygame
+import settings
+
 pygame.init()
 
 def draw_rect_outline(screen, rect, colour=(0, 255, 0), width=1):
@@ -13,6 +15,9 @@ class DebugOverlay:
         self.enabled = not self.enabled
 
     def draw(self, surf, elements, mouse_pos, font):
+        if not settings.DEBUG or not self.enabled:
+            return
+
         x, y = mouse_pos
         text = font.render(f'Mouse Position: (X: {x}, Y: {y})', True, (255, 255, 0))
         surf.blit(text, (x, y))
