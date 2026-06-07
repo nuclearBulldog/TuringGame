@@ -1,5 +1,14 @@
-from pygame import math 
+from pathlib import Path
+from pygame import math
+import os
 """Global configuration values used across the project."""
+
+BASE_DIR = Path(__file__).parent
+ASSETS_DIR = BASE_DIR / 'assets'
+DATA_DIR = BASE_DIR / 'data'
+LEVEL_DIR = DATA_DIR / 'levels'
+ENCOUNTER_DIR = DATA_DIR / 'encounters'
+
 
 WIDTH = 960
 HEIGHT = 580
@@ -33,4 +42,4 @@ HP_GREEN = (50, 180, 70)
 HP_RED = (190, 70, 70)
 OUTLINE = (30, 30, 30)
 
-DEBUG = True
+DEBUG = False

@@ -1,5 +1,6 @@
 import pygame
 import csv
+import settings
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
@@ -14,11 +15,12 @@ class TileMap:
     def __init__(self, level_path):
         self.tiles = pygame.sprite.Group()
         self.tile_size = 16
+        assets_dir = settings.ASSETS_DIR
 
-        self.dirt_img = pygame.image.load("assets/dirt-block.png").convert_alpha()
+        self.dirt_img = pygame.image.load(assets_dir / "dirt-block.png").convert_alpha()
         pygame.transform.scale(self.dirt_img, (16, 16))
 
-        self.grass_img = pygame.image.load("assets/grass-block.png").convert_alpha()
+        self.grass_img = pygame.image.load(assets_dir / "grass-block.png").convert_alpha()
         pygame.transform.scale(self.grass_img, (16, 16))
 
 
