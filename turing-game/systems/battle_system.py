@@ -1,45 +1,33 @@
 import random
-import json
-import os
+
+# AI Generated BoilerPlate
 
 class Move:
     """A battle move. Damage < 0 means healing."""
+
     def __init__(self, name, damage, description=''):
         self.name = name
         self.damage = damage
         self.description = description
 
+
 class BattleSystem:
     """Turn-based battle rules with no drawing code."""
 
-    def __init__(self, encounter_id='report_due'):
-        with open('../data/encounters.json', 'r') as file:
-            database = json.load(file)
-
-        encounter_data = database.get(encounter_id)
-
-        if not encounter_data:
-            raise ValueError(f"Encounter ID: '{encounter_id}' not found in data file!")
-
+    def __init__(self):
         self.player_name = 'You'
+        self.enemy_name = 'Report Due'
         self.player_hp = 100
         self.player_max_hp = 100
-
-        self.enemy_name = encounter_data['enemy_name']
-        self.enemy_hp = encounter_data['enemy_hp']
-        self.enemy_max_hp = encounter_data['enemy_max_hp']
-        self.message = encounter_data['intro_message']
+        self.enemy_hp = 80
+        self.enemy_max_hp = 80
         self.turn = 'player'
-
-        # 5. Build the Move objects dynamically
-        self.moves = []
-        for move_data in encounter_data['moves']:
-            new_move = Move(
-                name=move_data['name'],
-                damage=move_data['damage'],
-                description=move_data['description']
-            )
-            self.moves.append(new_move)
+        self.message = "Uh Oh, looks like you have a report due, it's on monday though...\nA whole weekend, nice."
+        self.moves = [
+            Move('Studying and trying to get it done', 10, 'Might not be strong enough'),
+            Move('Use ChatGPT to write the whole thing', 0, 'It will definitely get all of the work done'),
+            Move('Use AI to help with gathering information.', -12, 'Restore a little HP.'),
+        ]
 
     def clamp_hp(self):
         self.player_hp = max(0, min(self.player_hp, self.player_max_hp))
@@ -54,9 +42,7 @@ class BattleSystem:
             heal = -move.damage
             self.player_hp += heal
             self.message = f'{self.player_name} used {move.name}! Restored {heal} HP.'
-
         self.clamp_hp()
-
         if self.enemy_hp > 0:
             self.turn = 'enemy'
         else:
