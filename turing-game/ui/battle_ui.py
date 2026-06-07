@@ -47,12 +47,10 @@ class BattleUI:
         self._draw_player_panel(screen, battle_system)
 
         self._draw_bottom_ui(screen)
-        self._draw_message_box(screen, battle_system.message)
+        is_player_turn = (battle_system.turn == 'player' and not battle_system.battle_over)
+        self._draw_message_box(screen, battle_system.message, show_hint=is_player_turn)
 
         self._draw_moves(screen, battle_system, selected_index)
-
-        hint = 'Arrows: Select   Enter: Use Move   Esc: Return to Menu'
-        screen.blit(self.font.render(hint, False, settings.BLACK), (20, 510))
 
     def _draw_panel(self, screen, rect):
         """Draws a classic RPG double-frame window overlay."""
@@ -77,7 +75,7 @@ class BattleUI:
         self.draw_hp_bar(screen, hp_x, hp_y, 170, 16, battle.enemy_hp, battle.enemy_max_hp)
 
         hp_text = f"{battle.enemy_hp}/{battle.enemy_max_hp}"
-        text_surface = self.font.render(hp_text, False, settings.BLACK)
+        text_surface = self.big_font.render(hp_text, False, settings.BLACK)
         text_rect = text_surface.get_rect(right=panel.right - padding, top=hp_y + 20)
         screen.blit(text_surface, text_rect)
 
@@ -98,7 +96,7 @@ class BattleUI:
         txt_rect = txt.get_rect(right=panel.right - padding, top=hp_y + 24)
         screen.blit(txt, txt_rect)
 
-    def _draw_message_box(self, screen, message):
+    def _draw_message_box(self, screen, message, show_hint=True):
         screen_w = screen.get_width()
         screen_h = screen.get_height()
 
@@ -112,9 +110,16 @@ class BattleUI:
         max_width = box.width - padding * 2
         lines = self._wrap_text(message, self.font, max_width)
 
-        for i, line in enumerate(lines[:3]):
+        for i, line in enumerate(lines[:2]):
             text = self.font.render(line, False, settings.BLACK)
-            screen.blit(text, (box.x + 15, box.y + 15 + i * 24))
+            # Increased line spacing slightly to 26 for better readability
+            screen.blit(text, (box.x + 15, box.y + 15 + i * 26))
+
+        if show_hint:
+            hint = 'Arrows: Select   Enter: Use   Esc: Menu'
+            # Drawing it in dark gray (100,100,100) so it doesn't clash with the main black text
+            hint_surf = self.font.render(hint, False, (100, 100, 100))
+            screen.blit(hint_surf, (box.x + 15, box.bottom - 24))
 
     def _draw_background(self, screen):
         screen.fill((180, 215, 235))
@@ -177,20 +182,26 @@ class BattleUI:
             screen.blit(text_surf, text_rect)
 
     def _wrap_text(self, text, font, max_width):
-        words = text.split()
-        lines = []
-        current_line = ""
+        # Split by explicit newlines first
+        raw_lines = text.split('\n')
+        wrapped_lines = []
 
-        for word in words:
-            test_line = current_line + (" " if current_line else "") + word
-            text_width = font.size(test_line)[0]
+        for raw_line in raw_lines:
+            words = raw_line.split(' ')  # Split by spaces
+            current_line = ""
 
-            if text_width <= max_width:
-                current_line = test_line
-            else:
-                lines.append(current_line)
-                current_line = word
+            for word in words:
+                if not word: continue
+                test_line = current_line + (" " if current_line else "") + word
+                text_width = font.size(test_line)[0]
 
-        if current_line:
-            lines.append(current_line)
-        return lines
+                if text_width <= max_width:
+                    current_line = test_line
+                else:
+                    wrapped_lines.append(current_line)
+                    current_line = word
+
+            if current_line:
+                wrapped_lines.append(current_line)
+
+        return wrapped_lines
