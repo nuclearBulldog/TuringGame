@@ -61,6 +61,7 @@ $ python main.py
 Windows
 ---
 ---
+disclaimer: the windows installation guide was written using AI as i do not have a windows machine, keep in mind this may be incorrect
 
 ### Prerequisites
 - Python **3.10** ([download here](https://www.python.org/downloads/))
@@ -97,8 +98,6 @@ This will install:
 > cd turing-game
 > python main.py
 ```
-
-(Adjust `main.py` to the actual entry point if different)
 
 ## Deactivating the Virtual Environment
 
