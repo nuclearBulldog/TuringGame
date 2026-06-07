@@ -61,7 +61,7 @@ class BattleSystem:
         self.moves_used.append(move.name)
         self.turns_taken += 1
 
-        if move.name == "Use ChatGPT to write the whole thing":
+        if move.name == "Use ChatGPT":
             self.enemy_hp = 0
             self.message = 'ChatGPT Finished the entire report! ...Your tutor wants to speak with you outside!'
             self.player_won = False
@@ -105,7 +105,7 @@ class BattleSystem:
         self.summary_items = []
         self.score = 0
 
-        if "Use ChatGPT to write the whole thing" in self.moves_used:
+        if "Use ChatGPT" in self.moves_used:
             self.score = 0
             self.summary_items.append(("Turned in the assignment", True))
             self.summary_items.append(("Caught by AI Detector", False))
