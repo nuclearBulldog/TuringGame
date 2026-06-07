@@ -5,10 +5,14 @@ from systems.battle_system import BattleSystem
 from ui.battle_ui import BattleUI
 
 class BattleState(BaseState):
-    def __init__(self, manager, return_to_state=None):
+    def __init__(self, manager, return_to_state=None, system=None):
         super().__init__(manager)
         self.return_to_state = return_to_state
-        self.system = BattleSystem()
+        if system is not None:
+           self.system = system
+        else:
+            self.system = BattleSystem()
+
         self.ui = BattleUI(self.game.font, self.game.big_font) 
         self.selected_move = 0 
         self.enemy_action_delay = 0.55 

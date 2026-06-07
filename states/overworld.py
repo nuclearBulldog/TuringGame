@@ -5,7 +5,6 @@ from engine.camera import Camera
 from entities.enemy import Enemy
 from entities.player import Player
 from states.base_state import BaseState
-# from world.level_loader import load_level
 from world.tilemap import TileMap
 
 
@@ -16,7 +15,6 @@ class Overworld(BaseState):
         level_rows = 'world/levels/level1.csv'
         self.tilemap = TileMap(level_rows)
         px, py = self.tilemap.player_spawn
-        # self.exit_ticket = self.tilemap.exit_ticket
         self.player = Player(px, py)
         self.camera = Camera()
         self.enemies = [Enemy(x, y) for (x, y) in self.tilemap.enemy_spawns] or [Enemy(620, 180)]
@@ -64,7 +62,8 @@ class Overworld(BaseState):
         pygame.draw.rect(screen, settings.OUTLINE, panel, width=3, border_radius=12)
         lines = [
             'Overworld',
-            'Move: A/D or Arrow Key Left/Arrow Key Right\nJump: Space | W | Arrow Key Up'
+            'Move: A/D or Arrow Key Left/Arrow Key Right',
+            'Jump: Space | W | Arrow Key Up'
         ]
 
         for i, text in enumerate(lines):
@@ -76,9 +75,3 @@ class Overworld(BaseState):
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
                 self.game.sound.toggle_mute()
-
-            # elif self._game_finished:
-            #     from states.summary_menu import SumaryMenu
-            #
-            #     self.manager.change(SummaryMenu(self.manager))
-            #     return

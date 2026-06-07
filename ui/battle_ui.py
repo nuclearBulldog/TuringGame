@@ -191,8 +191,20 @@ class BattleUI:
             pygame.draw.rect(screen, fill, rect, border_radius=10)
             pygame.draw.rect(screen, settings.OUTLINE, rect, 2, border_radius=10)
 
-            text = self.font.render(move.name, True, settings.BLACK)
-            screen.blit(text, text.get_rect(center=rect.center))
+            text_surf = self.big_font.render(move.name, True, settings.BLACK)
+
+            max_w = button_w - 10
+            max_h = button_h - 10
+
+            surf_w, surf_h = text_surf.get_size()
+            if surf_w > max_w or surf_h > max_h:
+                scale_factor = min(max_w / surf_w, max_h / surf_h)
+                new_size = (int(surf_w * scale_factor), int(surf_h * scale_factor))
+
+                text_surf = pygame.transform.smoothscale(text_surf, new_size)
+
+            text_rect = text_surf.get_rect(center=(rect.center))
+            screen.blit(text_surf, text_rect)
 
     # format text
     def _wrap_text(self, text, font, max_width):
