@@ -11,6 +11,7 @@ LEVEL_DIR = DATA_DIR / 'levels'
 ENCOUNTER_DIR = DATA_DIR / 'encounters'
 
 BASE_FONT = ASSETS_DIR / 'monogram.ttf'
+BG_MUSIC = ASSETS_DIR / 'main-theme.wav'
 
 
 WIDTH = 960

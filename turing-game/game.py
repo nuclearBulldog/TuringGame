@@ -37,14 +37,15 @@ from states.main_menu import MainMenu
 class Game:
     def __init__(self):
         pygame.init()
-        self.sound = SoundManager()
+        self.sound_manager = SoundManager()
+        self.sound_manager.play_music(settings.BG_MUSIC)
         self.screen= pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
         pygame.display.set_caption(settings.TITLE)
         self.clock = pygame.time.Clock()
         self.running = True
         self._game_finished = False
 
-        self.font = pygame.font.Font(settings.BASE_FONT, 16)
+        self.font = pygame.font.Font(settings.BASE_FONT, 18)
         self.big_font = pygame.font.Font(settings.BASE_FONT, 32)
 
         self.state_manager = StateManager(self)
@@ -94,43 +95,3 @@ class Game:
 
             pygame.display.flip()
         pygame.quit()
-
-
-
-    # def handle_events(self):
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             self.running = False
-    #     self.state_manager.handle_events()
-
-
-
-
-# def check_collision(player, platforms):
-#     player.on_ground = False
-#
-#     for p in platforms:
-#         if player.rect.colliderect(p):
-#             if player.vel.y > 0:  # falling
-#                 player.rect.bottom = p.top
-#                 player.vel.y = 0
-#                 player.on_ground = True
-
-    # while self.running:
-    #     delta_time = FramePerSec.tick(FPS) / 1000
-    #
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             running = False
-    #
-    #     state_manger.update(delta_time)
-    #
-    #     if player.rect.colliderect(enemy.rect):
-    #         state_manger.change(BattleState(state_manger))
-    #
-    #     screen.fill((0,0,0))
-    #     state_manger.draw(screen)
-    #
-    #     pygame.display.flip()
-    #
-    # pygame.quit()

@@ -67,7 +67,7 @@ class MainMenu(BaseState):
         self.manager.change(Overworld(self.manager))
 
     def toggle_mute(self):
-        self.game.sound.toggle_mute()
+        self.game.sound_manager.toggle_mute()
 
     @staticmethod
     def quit_game():
@@ -101,7 +101,7 @@ class MainMenu(BaseState):
         for button in self.buttons:
             button.draw(screen)
 
-        current_icon = self.icon_sound_off if self.game.sound.muted else self.icon_sound_on
+        current_icon = self.icon_sound_off if self.game.sound_manager.muted else self.icon_sound_on
         screen.blit(current_icon, (20, settings.HEIGHT - 40))
 
     def handle_events(self, events):

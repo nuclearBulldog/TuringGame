@@ -3,22 +3,27 @@
     "enemy_name": "Report Due",
     "enemy_hp": 140,
     "enemy_max_hp": 140,
-    "intro_message": "Uh Oh, looks like you have a report due on monday...",
+    "intro_message": "Uh Oh, looks like you have a report due",
     "moves": [
       {
-        "name": "Studying and trying to get it done",
+        "name": "Study",
         "damage": 25,
         "description": "Might not be strong enough"
       },
       {
-        "name": "Use ChatGPT to write the whole thing",
+        "name": "Use ChatGPT",
         "damage": 80,
-        "description": "AI FLAG"
+        "description": "It'll Definitely get the work done"
       },
       {
-        "name": "Use AI to help with gathering information.",
-        "damage": -12,
-        "description": "Restore a little HP."
+        "name": "Studying + using AI.",
+        "damage": 35,
+        "description": "A little bit more effective"
+      },
+      {
+        "name": "Do nothing",
+        "damage": 0,
+        "description": "You do you"
       }
     ]
   }

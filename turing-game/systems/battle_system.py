@@ -72,7 +72,7 @@ class BattleSystem:
             actual_damage = min(move.damage, self.enemy_hp)
             self.total_damage_dealt += actual_damage
             self.enemy_hp -= actual_damage
-            self.message = f'You decided to deal with this report by {move.name}'
+            self.message = f'You decided to {move.name}, {move.description}... dealing {actual_damage} damage!'
         else:
             heal = -move.damage
             self.player_hp += heal
