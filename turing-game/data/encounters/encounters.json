@@ -1,0 +1,25 @@
+{
+  "report_due": {
+    "enemy_name": "Report Due",
+    "enemy_hp": 80,
+    "enemy_max_hp": 80,
+    "intro_message": "Uh Oh, looks like you have a report due, it's on monday though...\nA whole weekend, nice.",
+    "moves": [
+      {
+        "name": "Studying and trying to get it done",
+        "damage": 10,
+        "description": "Might not be strong enough"
+      },
+      {
+        "name": "Use ChatGPT to write the whole thing",
+        "damage": 0,
+        "description": "It will definitely get all of the work done"
+      },
+      {
+        "name": "Use AI to help with gathering information.",
+        "damage": -12,
+        "description": "Restore a little HP."
+      }
+    ]
+  }
+}

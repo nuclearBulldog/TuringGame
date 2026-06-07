@@ -6,7 +6,7 @@ from ui.debug_overlay import *
 from pathlib import Path
 from assets.image_button import ImageButton
 
-ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
+ASSETS_DIR = settings.ASSETS_DIR
 SCALE_FACTOR = 3.0
 
 class MainMenu(BaseState):

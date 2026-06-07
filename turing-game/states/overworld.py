@@ -12,7 +12,7 @@ class Overworld(BaseState):
 
     def __init__(self, manager):
         super().__init__(manager)
-        level_rows = 'world/levels/level1.csv'
+        level_rows = settings.LEVEL_DIR / 'level1.csv'
         self.tilemap = TileMap(level_rows)
         px, py = self.tilemap.player_spawn
         self.player = Player(px, py)
