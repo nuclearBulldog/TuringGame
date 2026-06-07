@@ -1,3 +1,4 @@
+import pygame
 from pathlib import Path
 from pygame import math
 import os
@@ -8,6 +9,8 @@ ASSETS_DIR = BASE_DIR / 'assets'
 DATA_DIR = BASE_DIR / 'data'
 LEVEL_DIR = DATA_DIR / 'levels'
 ENCOUNTER_DIR = DATA_DIR / 'encounters'
+
+BASE_FONT = ASSETS_DIR / 'monogram.ttf'
 
 
 WIDTH = 960
