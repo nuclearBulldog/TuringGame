@@ -44,8 +44,8 @@ class Game:
         self.running = True
         self._game_finished = False
 
-        self.font = pygame.font.SysFont(None, 16)
-        self.big_font = pygame.font.SysFont(None, 32, bold=True)
+        self.font = pygame.font.Font(settings.BASE_FONT, 16)
+        self.big_font = pygame.font.Font(settings.BASE_FONT, 32)
 
         self.state_manager = StateManager(self)
         self.state_manager.change(MainMenu(self.state_manager))

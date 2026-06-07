@@ -11,7 +11,7 @@ class BattleResultState(BaseState):
         self.return_to_state = return_to_state
         self.system = system if system else BattleSystem()
 
-        self.win = (self.system.enemy_hp <= 0)
+        self.win = self.system.player_won
         self.show_details = False
 
         bg_colour = (30, 160, 60) if self.win else (200, 40, 40)
