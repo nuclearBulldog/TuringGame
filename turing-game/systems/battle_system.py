@@ -61,7 +61,7 @@ class BattleSystem:
         self.moves_used.append(move.name)
         self.turns_taken += 1
 
-        if move.name == "Use ChatGPT to write the whole thing":
+        if move.name == "Use ChatGPT":
             self.enemy_hp = 0
             self.message = 'ChatGPT Finished the entire report! ...Your tutor wants to speak with you outside!'
             self.player_won = False
