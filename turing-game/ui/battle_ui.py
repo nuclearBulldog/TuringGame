@@ -108,10 +108,10 @@ class BattleUI:
 
         padding = 15
         max_width = box.width - padding * 2
-        lines = self._wrap_text(message, self.font, max_width)
+        lines = self._wrap_text(message, self.big_font, max_width)
 
         for i, line in enumerate(lines[:2]):
-            text = self.font.render(line, False, settings.BLACK)
+            text = self.big_font.render(line, False, settings.BLACK)
             # Increased line spacing slightly to 26 for better readability
             screen.blit(text, (box.x + 15, box.y + 15 + i * 26))
 
