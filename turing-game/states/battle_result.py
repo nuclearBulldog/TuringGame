@@ -11,6 +11,9 @@ class BattleResultState(BaseState):
         self.return_to_state = return_to_state
         self.system = system if system else BattleSystem()
 
+        self.base_font = settings.BASE_FONT
+        self.title_font = pygame.font.Font()
+
         self.win = self.system.player_won
         self.show_details = False
 
@@ -22,8 +25,9 @@ class BattleResultState(BaseState):
         theme.title_font_shadow = True
         theme.widget_padding = 15
 
-        theme.widget_font = self.game.font
-        theme.title_font = self.game.big_font
+        theme.widget_font = pygame.font.Font(self.base_font, 24)
+        theme.title_font = pygame.font.Font(self.base_font, 32)
+
 
         selection_effect = pygame_menu.widgets.HighlightSelection(
             border_width=2,
@@ -36,17 +40,20 @@ class BattleResultState(BaseState):
 
         theme.widget_selection_effect = selection_effect
 
-
-
         title_text = "You Win Good Job!" if self.win else "You Have Lost... Get Good"
 
         self.menu = pygame_menu.Menu(
-            title_text,
+            'Results',
             settings.WIDTH,
             settings.HEIGHT,
             theme=theme,
         )
 
+
+
+        self.menu.center_content()
+
+        self.menu.add.label(title_text, font_name=settings.BASE_FONT, font_color=settings.WHITE, font_size=44)
         self.menu.add.button('Details', self.toggle_details)
         self.menu.add.button('Play Again', self.play_again)
         self.menu.add.button('Main Menu', self.main_menu)
@@ -87,6 +94,7 @@ class BattleResultState(BaseState):
                         self.play_again()
 
     def draw(self, screen):
+        result_font = pygame.font.Font(self.base_font, 24)
         if self.menu.is_enabled():
             self.menu.draw(screen)
 
@@ -102,11 +110,11 @@ class BattleResultState(BaseState):
             lines = self._build_detail_lines()
             y = panel.y + 25
             for line in lines:
-                s = self.game.font.render(line, True, (20, 20, 20))
+                s = result_font.render(line, False, (20, 20, 20))
                 screen.blit(s, (panel.x + 25, y))
                 y += 30
 
-            hint_surf = self.game.font.render("Press ESC to close", True, (150, 150, 150))
+            hint_surf = self.game.font.render("Press ESC to close", False, (150, 150, 150))
             hint_rect = hint_surf.get_rect(center=(settings.WIDTH // 2, panel.bottom - 20))
             screen.blit(hint_surf, hint_rect)
 

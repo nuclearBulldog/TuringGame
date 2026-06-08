@@ -1,38 +1,8 @@
 import pygame
 import settings
-# import engine
-# import states
-# import ui
-# import entities
-
-# import engine.state_manager
-# import engine.camera
-# import states.battle
-# import states.main_menu
-# import states.overworld
-# import states.pause_menu
-# import ui.button
-# import ui.hud
-# import entities.player
-# import entities.enemy
-
-
-# from engine import *
-# from states import *
-# from ui import *
-# from entities import *
-
 from engine.state_manager import StateManager
 from systems.sound_manager import SoundManager
 from states.main_menu import MainMenu
-#from states.overworld import Overworld
-# from states.battle import BattleState
-# # from states.pause_menu import PauseMenu
-# from ui.button import Button
-# # from ui.hud import Hud
-# # from entities.enemy import Enemy
-# from entities.player import Player
-
 
 class Game:
     def __init__(self):
@@ -45,7 +15,7 @@ class Game:
         self.running = True
         self._game_finished = False
 
-        self.font = pygame.font.Font(settings.BASE_FONT, 18)
+        self.font = pygame.font.Font(settings.BASE_FONT, 20)
         self.big_font = pygame.font.Font(settings.BASE_FONT, 32)
 
         self.state_manager = StateManager(self)
