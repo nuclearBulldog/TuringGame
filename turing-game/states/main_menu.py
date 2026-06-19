@@ -1,10 +1,11 @@
 import sys
 
+import pygame
 import settings
 from states.base_state import BaseState
-from ui.debug_overlay import *
 from pathlib import Path
 from assets.image_button import ImageButton
+
 
 ASSETS_DIR = settings.ASSETS_DIR
 SCALE_FACTOR = 3.0

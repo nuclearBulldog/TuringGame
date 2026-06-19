@@ -21,18 +21,8 @@ class Game:
         self.state_manager = StateManager(self)
         self.state_manager.change(MainMenu(self.state_manager))
 
-        # DEBUG
-        pygame.font.init()
-        from ui.debug_overlay import DebugOverlay
-        self.debug_overlay = DebugOverlay(pygame.font.SysFont(None, 15)) if settings.DEBUG else None
-        self.debug_elements = []
-
-
     def run(self):
         while self.running:
-
-            # DEBUG
-            debug_mouse_pos = pygame.mouse.get_pos() if settings.DEBUG else (0, 0)
 
             dt = self.clock.tick(settings.FPS) / 1000.0
             
@@ -41,27 +31,9 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-                # DEBUG
-                if settings.DEBUG and event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_F1:
-                        self.debug_overlay.toggle()
-
-                for element in self.debug_elements:
-                    element.handle_event(event)
-
             self.state_manager.handle_events(events)
             self.state_manager.update(dt)
             self.state_manager.draw(self.screen)
-
-
-            # DEBUG
-            if settings.DEBUG:
-                for element in self.debug_elements:
-                    element.draw(self.screen)
-
-                # Draw debug LAST (on top)
-                if self.debug_overlay is not None:
-                    self.debug_overlay.draw(self.screen, self.debug_elements, debug_mouse_pos, self.font)
 
             pygame.display.flip()
         pygame.quit()
