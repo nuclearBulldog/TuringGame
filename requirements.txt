@@ -2,3 +2,4 @@ pygame~=2.6.1
 pytest~=9.0.3
 pygame-menu~= 4.5.2
 pytest-cov~=7.1.0
+pygbag~=0.9.0
