@@ -1,0 +1,229 @@
+/* Turing Game — landing page
+   Concept: the page is the assignment. A graded ethics worksheet on ruled
+   paper; the game is Fig. 1; marking is done in red pen. */
+
+:root {
+  --paper:   #F2F2EC;   /* photocopied exam paper, cooled off-white */
+  --paper-2: #EAEAE1;   /* faint panel fill */
+  --ink:     #201F1B;   /* warm near-black pen */
+  --ink-2:   #6C6A61;   /* graphite, secondary */
+  --rule:    #B9C6DB;   /* printed horizontal ruling */
+  --red:     #C23A2B;   /* the red pen / margin line / stamp */
+  --red-dim: rgba(194,58,43,.14);
+
+  --print: "Courier Prime", "Courier New", ui-monospace, monospace;
+  --hand:  "Caveat", "Segoe Print", cursive;
+
+  --sheet-w: 940px;
+  --margin:  clamp(46px, 9vw, 96px);  /* left gutter before the red rule's text */
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--print);
+  font-size: 16px;
+  line-height: 1.55;
+  background-color: var(--paper);
+  /* printed horizontal ruling across the whole sheet */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    var(--rule) 31px,
+    var(--rule) 32px
+  );
+  background-position: 0 6px;
+}
+
+/* ---- The sheet + red margin rule ---- */
+.sheet {
+  position: relative;
+  max-width: var(--sheet-w);
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 60px) clamp(22px, 5vw, 52px) 48px var(--margin);
+}
+.sheet::before {   /* the red vertical margin line */
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  left: calc(var(--margin) - 22px);
+  width: 2px;
+  background: var(--red);
+  opacity: .8;
+}
+
+/* ---- Exam header ---- */
+.exam-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  padding-bottom: 14px;
+  border-bottom: 1.5px solid var(--ink);
+}
+.exam-meta .field b { color: var(--ink); font-weight: 700; }
+.exam-meta .fill {
+  border-bottom: 1px solid var(--ink-2);
+  padding: 0 26px 1px 4px;
+  color: var(--ink);
+}
+.exam-meta .push { margin-left: auto; }
+
+/* ---- Title / brief ---- */
+.title {
+  font-family: var(--print);
+  font-weight: 700;
+  font-size: clamp(38px, 8vw, 78px);
+  line-height: .98;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  margin: clamp(22px, 4vw, 34px) 0 0;
+}
+.title .no {
+  display: block;
+  font-size: clamp(12px, 1.5vw, 14px);
+  letter-spacing: .22em;
+  color: var(--red);
+  margin-bottom: 10px;
+}
+.brief {
+  max-width: 60ch;
+  margin: 16px 0 0;
+  color: var(--ink);
+  font-size: clamp(15px, 1.7vw, 17px);
+}
+.brief u { text-decoration: none; border-bottom: 2px solid var(--red); padding-bottom: 1px; }
+
+/* ---- Figure 1: the game ---- */
+.figure {
+  position: relative;
+  margin: clamp(30px, 5vw, 46px) 0 0;
+}
+.figure .tag {
+  font-size: 12.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin: 0 0 10px;
+}
+.figure .tag b { color: var(--ink); font-weight: 700; }
+
+.screen {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  background: #0a0e18;
+  border: 2px solid var(--ink);
+  box-shadow: 8px 8px 0 rgba(32,31,27,.14);   /* flat printed drop, no glow */
+}
+.screen iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: 0; display: block;
+}
+
+.caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+  margin-top: 12px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+.caption .lead { color: var(--ink); }
+.caption .keys { margin-left: auto; }
+kbd {
+  font-family: var(--print);
+  font-size: 12.5px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  padding: 1px 6px;
+  box-shadow: 1.5px 1.5px 0 rgba(32,31,27,.25);
+}
+
+/* the handwritten red margin note pointing at the figure */
+.margin-note {
+  font-family: var(--hand);
+  font-size: clamp(20px, 3vw, 28px);
+  color: var(--red);
+  line-height: 1;
+  transform: rotate(-4deg);
+  position: absolute;
+  top: -6px; right: 4px;
+}
+
+/* ---- The two questions (real sequence -> numbered) ---- */
+.questions {
+  margin: clamp(34px, 5vw, 52px) 0 0;
+  display: grid;
+  gap: 26px;
+}
+.q { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
+.q .n {
+  font-weight: 700;
+  color: var(--red);
+  font-size: 19px;
+  white-space: nowrap;
+}
+.q h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.q p { margin: 0; color: var(--ink-2); font-size: 15px; max-width: 64ch; }
+.q p b { color: var(--ink); font-weight: 700; }
+
+/* ---- The red grade stamp: the signature ---- */
+.stamp {
+  position: absolute;
+  top: clamp(18px, 4vw, 40px);
+  right: clamp(10px, 4vw, 40px);
+  font-family: var(--print);
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--red);
+  border: 3px double var(--red);
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: clamp(15px, 2.4vw, 22px);
+  text-transform: uppercase;
+  transform: rotate(7deg);
+  opacity: .85;
+  pointer-events: none;
+}
+.stamp small { display: block; font-size: .5em; letter-spacing: .18em; opacity: .85; }
+
+/* ---- Footer ---- */
+footer {
+  margin-top: clamp(40px, 6vw, 60px);
+  padding-top: 16px;
+  border-top: 1.5px solid var(--ink);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 20px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+footer a { color: var(--ink); text-decoration: none; border-bottom: 2px solid var(--red); }
+footer a:hover, footer a:focus-visible { background: var(--red-dim); }
+
+:focus-visible { outline: 2.5px solid var(--red); outline-offset: 3px; }
+
+@media (max-width: 560px) {
+  .exam-meta .push { margin-left: 0; }
+  .caption .keys { margin-left: 0; }
+  .stamp { top: 8px; right: 8px; }
+}

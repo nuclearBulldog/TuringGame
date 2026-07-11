@@ -1,6 +1,5 @@
 import pygame
 from pathlib import Path
-from pygame import math
 import os
 """Global configuration values used across the project."""
 
@@ -25,9 +24,6 @@ GRAVITY = 1800
 PLAYER_SPEED = 220
 PLAYER_JUMP_VELOCITY = -650
 ENEMY_SPEED = 120
-VEC = math.Vector2
-
-
 # Camera smoothing
 CAMERA_LERP = 0.12
 

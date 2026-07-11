@@ -8,3 +8,12 @@ __pycache__
 .vscode
 .DS_Store
 dist
+
+# pygbag web build output (regenerate with `python -m pygbag --build turing-game`)
+turing-game/build/
+
+# Vendored pure-Python deps for the web build (regenerate — see docs/web-build.md)
+turing-game/vendor/
+
+# Generated copy of the game build embedded by the site wrapper (site/index.html)
+turing-game/site/game/

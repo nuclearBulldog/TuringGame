@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turing Game — an ethics-of-AI worksheet you play</title>
+<meta name="description" content="A browser game about the ethical use of artificial intelligence, framed as a graded worksheet.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="sheet">
+    <div class="stamp">Pending<small>not yet submitted</small></div>
+
+    <div class="exam-meta">
+      <span class="field">Course <b>Ethics of A.I.</b></span>
+      <span class="field">Name <span class="fill">&nbsp;</span></span>
+      <span class="field">Date <span class="fill">&nbsp;</span></span>
+    </div>
+
+    <h1 class="title"><span class="no">Assignment No. 01</span>Turing Game</h1>
+    <p class="brief">A game about the ethical use of artificial intelligence. You play a student with a report due and an <u>easy way out</u>. Every choice — in the world and in the fight — asks the same question: what's the right thing to do?</p>
+
+    <figure class="figure">
+      <p class="tag"><b>Fig. 1</b> — the simulation (runs in your browser)</p>
+      <div class="screen">
+        <!-- Game build lives in ./game/ (a copy of build/web). See docs/web-build.md -->
+        <iframe
+          src="game/index.html"
+          title="Turing Game"
+          allow="autoplay; fullscreen"
+          loading="lazy"></iframe>
+      </div>
+      <span class="margin-note">click to start! ✎</span>
+      <figcaption class="caption">
+        <span class="lead">Give it a few seconds to load, then click the screen.</span>
+        <span class="keys"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> move · <kbd>Space</kbd> jump</span>
+      </figcaption>
+    </figure>
+
+    <div class="questions">
+      <div class="q">
+        <span class="n">Q1.</span>
+        <div>
+          <h2>The overworld</h2>
+          <p>Run and jump through a pixel world. Walk into an encounter and it becomes a <b>turn-based battle</b>.</p>
+        </div>
+      </div>
+      <div class="q">
+        <span class="n">Q2.</span>
+        <div>
+          <h2>The shortcut</h2>
+          <p>One move finishes the whole report instantly — by letting the AI write it. Take it, and see what the detector says. <b>Your tutor would like a word.</b></p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>Marked in your browser · pygame + pygbag</span>
+      <a href="https://github.com/" rel="noopener">View the source</a>
+    </footer>
+  </div>
+</body>
+</html>
