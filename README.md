@@ -1,11 +1,21 @@
 # TuringGame
 
-Installation Guide
----
+A short narrative platformer with turn-based mechanics about the **ethical use of AI**.
+Explore the overworld, get into "battles", and see how your decisions play out.
 
-Linux/MacOS
----
----
+Built with Python + pygame, and playable in the browser via a pygbag/WebAssembly build.
+
+<!-- Add once CI is set up (Tier 3): -->
+<!-- ![CI](https://github.com/nuclearBulldog/TuringGame/actions/workflows/ci.yml/badge.svg) -->
+
+**[Play in your browser](ADD_DEMO_URL_HERE)** | Desktop install below
+
+![TuringGame screenshot](docs/screenshot.png)
+
+# Installation Guide
+
+## Linux/MacOS
+
 ### Prerequisites
 
 - **git**
@@ -105,5 +115,15 @@ When you're finished, deactivate the virtual environment by running:
 ```bash
 deactivate
 ```
+
+## Running the tests
+
+From the repo root, with the virtual environment activated:
+
+```bash
+$ pytest
+```
+
+The test suite (47 tests) runs headless, so no window or audio device required.
 
 ---
