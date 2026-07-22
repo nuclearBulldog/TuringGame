@@ -18,10 +18,10 @@ class TileMap:
         assets_dir = settings.ASSETS_DIR
 
         self.dirt_img = pygame.image.load(assets_dir / "dirt-block.png").convert_alpha()
-        pygame.transform.scale(self.dirt_img, (16, 16))
+        self.dirt_img = pygame.transform.scale(self.dirt_img, (self.tile_size, self.tile_size))
 
         self.grass_img = pygame.image.load(assets_dir / "grass-block.png").convert_alpha()
-        pygame.transform.scale(self.grass_img, (16, 16))
+        self.grass_img = pygame.transform.scale(self.grass_img, (self.tile_size, self.tile_size))
 
 
         self.level_data = self._load_level(level_path)
@@ -34,10 +34,15 @@ class TileMap:
     def _load_level(self, path):
         data = []
 
-        with open(path) as file:
-            reader = csv.reader(file, delimiter=',')
-            for row in reader:
-                data.append([int(tile) for tile in row])
+        try:
+            with open(path, newline='', encoding='utf-8') as file:
+                reader = csv.reader(file, delimiter=',')
+                for row in reader:
+                    data.append([int(tile) for tile in row])
+        except FileNotFoundError as error:
+            raise FileNotFoundError(f'Level file not found: {path}') from error
+        except ValueError as error:
+            raise ValueError(f'Level file {path} contains a non-integer tile: {error}') from error
         return data
 
     def _build_world(self):

@@ -15,8 +15,13 @@ class BattleSystem:
     def __init__(self, encounter_id='report_due'):
         data_path = settings.ENCOUNTER_DIR / 'encounters.json'
 
-        with open(data_path, 'r') as file:
-            database = json.load(file)
+        try:
+            with open(data_path, encoding='utf-8') as file:
+                database = json.load(file)
+        except FileNotFoundError as error:
+            raise FileNotFoundError(f'Encounter data file not found: {data_path}') from error
+        except json.JSONDecodeError as error:
+            raise ValueError(f'Encounter data file is not valid JSON ({data_path}): {error}') from error
 
         encounter_data = database.get(encounter_id)
 
@@ -41,7 +46,6 @@ class BattleSystem:
         self.score = 0
         self.summary_items = []
 
-        # 5. Build the Move objects dynamically
         self.moves = []
         for move_data in encounter_data['moves']:
             new_move = Move(
@@ -119,26 +123,19 @@ class BattleSystem:
 
             hp_percent = self.player_hp / self.player_max_hp
             if hp_percent == 1.0:
-                self.score += 50
+                self.score += 200
                 self.summary_items.append(("Flawless Victory (AMAZING 100%!)", True))
             elif hp_percent >= 0.5:
-                self.score += 200
+                self.score += 50
                 self.summary_items.append(("Not too bad (>=50%)", True))
             else:
-                self.summary_items.append(("Barely survived...(Meh <=50%", False))
+                self.summary_items.append(("Barely survived... (Meh, <50%)", False))
 
             if self.turns_taken <= 3:
                 self.score += 200
                 self.summary_items.append((f'WOW, That was fast: {self.turns_taken} turns', True))
             else:
                 self.summary_items.append((f'Slow and Steady {self.turns_taken} turns', False))
-
-            if "Use ChatGPT to write the whole thing" in self.moves_used:
-                self.score -= 500
-                self.summary_items.append(('Academic Dishonesty', False))
-
-            if self.score < 1:
-                self.summary_items.append(('Failed the assignment anyway', False))
 
         else:
             self.score += 10

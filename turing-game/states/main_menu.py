@@ -80,12 +80,6 @@ class MainMenu(BaseState):
         for button in self.buttons:
             button.update(mouse_pos)
 
-        if pygame.mouse.get_pressed()[0]:
-            icon_rect = pygame.Rect(20, settings.HEIGHT - 34, 20, 20)
-            if icon_rect.collidepoint(mouse_pos):
-                # TODO: add a cooldown or mouse-up event check here so it doesn't spam toggle
-                self.toggle_mute()
-
     def draw(self, screen):
         screen.fill((25, 32, 60))
 

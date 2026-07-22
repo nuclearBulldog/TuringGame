@@ -1,5 +1,6 @@
 import pytest
 import pygame
+import settings
 from states.main_menu import MainMenu
 
 class MockManager:
@@ -59,3 +60,18 @@ def test_main_menu_quit(monkeypatch):
     monkeypatch.setattr(sys, "exit", mock_exit)
     menu.quit_game()
     assert exited is True
+
+
+def test_main_menu_update_does_not_toggle_mute(monkeypatch):
+    # Regression: mute must only toggle on a click event, never from per-frame update().
+    manager = MockManager()
+    menu = MainMenu(manager)
+    menu.game = MockGame()
+
+    # Simulate the mouse held down over the old sound-icon hitbox.
+    monkeypatch.setattr(pygame.mouse, "get_pos", lambda: (25, settings.HEIGHT - 35))
+    monkeypatch.setattr(pygame.mouse, "get_pressed", lambda *args, **kwargs: (True, False, False))
+
+    before = menu.game.sound_manager.muted
+    menu.update(0.016)
+    assert menu.game.sound_manager.muted == before
