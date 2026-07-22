@@ -1,5 +1,3 @@
-# AI Generated BoilerPlate
-
 import pygame
 
 

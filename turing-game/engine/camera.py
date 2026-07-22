@@ -1,7 +1,6 @@
 import pygame
 import settings
 
-# AI Generated BoilerPlate
 
 class Camera:
     """Tracks the player and converts world coordinates into screen coordinates."""
@@ -23,4 +22,3 @@ class Camera:
     def apply(self, obj):
         rect = obj.rect if hasattr(obj, "rect") else obj
         return rect.move(-int(self.offset.x), -int(self.offset.y))
-

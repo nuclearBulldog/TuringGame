@@ -22,12 +22,11 @@ class SummaryMenu(BaseState):
         ]
 
     def main_menu(self):
-        # Local import avoids circular imports.
         from states.main_menu import MainMenu
         self.manager.change(MainMenu(self.manager))
 
     def toggle_mute(self):
-        self.game.sound.toggle_mute()
+        self.game.sound_manager.toggle_mute()
 
     def quit_game(self):
         pygame.quit()
@@ -47,7 +46,7 @@ class SummaryMenu(BaseState):
         screen.blit(subtitle, subtitle.get_rect(center=(settings.WIDTH // 2, 155)))
         for button in self.buttons:
             button.draw(screen)
-        muted_text = 'Muted: ON' if self.game.sound.muted else 'Muted: OFF'
+        muted_text = 'Muted: ON' if self.game.sound_manager.muted else 'Muted: OFF'
         screen.blit(self.game.font.render(muted_text, True, settings.WHITE), (20, settings.HEIGHT - 34))
 
     def handle_events(self, events):

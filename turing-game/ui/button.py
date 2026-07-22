@@ -1,7 +1,6 @@
 import pygame
 import settings
 
-# AI Generated BoilerPlate
 
 class Button:
     """Simple reusable button with hover and click callback."""

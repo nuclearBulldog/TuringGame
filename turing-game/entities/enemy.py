@@ -1,12 +1,10 @@
 import pygame
 
-# AI Generated BoilerPlate
 
 import settings
 from entities.base_entity import BaseEntity
 from systems.animation import AnimationController
 
-# Algorithim AI Generated
 
 class Enemy(BaseEntity):
     """Enemy with a tiny AI state machine: patrol and chase."""
@@ -27,7 +25,6 @@ class Enemy(BaseEntity):
         )
 
     def _build_animations(self):
-        # AI Generated
         def make_frame(arm=0, leg=0):
             surf = pygame.Surface((32, 44), pygame.SRCALPHA)
 
@@ -66,7 +63,6 @@ class Enemy(BaseEntity):
         self.animator.update(dt)
 
     def _patrol(self):
-        # AI Generated
         self.vel.x = settings.ENEMY_SPEED * self.direction
         if self.rect.x <= self.patrol_min_x:
             self.direction = 1
@@ -74,7 +70,6 @@ class Enemy(BaseEntity):
             self.direction = -1
 
     def _chase(self, player):
-        # AI Generated
         if player.rect.centerx < self.rect.centerx:
             self.direction = -1
             self.vel.x = -settings.ENEMY_SPEED

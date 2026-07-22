@@ -1,5 +1,3 @@
-# AI Generated BoilerPlate
-
 class AnimationController:
     """Stores named animations and advances frames for the active state."""
 

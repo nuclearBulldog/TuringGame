@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 import pygame
 from game import Game
@@ -28,6 +30,6 @@ def test_game_quit_event(monkeypatch):
     game = Game()
     
     # This should run one iteration and exit because running becomes False
-    game.run()
+    asyncio.run(game.run())
     
     assert game.running is False

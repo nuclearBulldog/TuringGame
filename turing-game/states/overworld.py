@@ -74,4 +74,4 @@ class Overworld(BaseState):
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
-                self.game.sound.toggle_mute()
+                self.game.sound_manager.toggle_mute()

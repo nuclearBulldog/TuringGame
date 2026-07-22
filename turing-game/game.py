@@ -1,3 +1,5 @@
+import asyncio
+
 import pygame
 import settings
 from engine.state_manager import StateManager
@@ -21,11 +23,10 @@ class Game:
         self.state_manager = StateManager(self)
         self.state_manager.change(MainMenu(self.state_manager))
 
-    def run(self):
+    async def run(self):
         while self.running:
-
             dt = self.clock.tick(settings.FPS) / 1000.0
-            
+
             events = pygame.event.get()
             for event in events:
                 if event.type == pygame.QUIT:
@@ -36,4 +37,7 @@ class Game:
             self.state_manager.draw(self.screen)
 
             pygame.display.flip()
+            # Yield to the browser's event loop under pygbag; a no-op on desktop.
+            await asyncio.sleep(0)
+
         pygame.quit()

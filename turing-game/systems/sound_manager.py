@@ -1,9 +1,5 @@
 import pygame
 
-# AI Generated BoilerPlate
-
-import pygame
-
 
 class SoundManager:
     """Centralised audio manager with safe fallback if mixer fails."""
@@ -13,7 +9,6 @@ class SoundManager:
         self.muted = False
         self.sounds = {}
 
-        # 1. Store your target background volume here (0.75 = 75%)
         self.music_volume = 0.75
 
         try:
@@ -43,10 +38,8 @@ class SoundManager:
         try:
             pygame.mixer.music.load(str(path))
 
-            # 2. Apply the volume before starting playback
             pygame.mixer.music.set_volume(0.0 if self.muted else self.music_volume)
 
-            # 3. Play with infinite looping (loops=-1)
             pygame.mixer.music.play(loops)
 
         except pygame.error as e:
@@ -60,9 +53,7 @@ class SoundManager:
     def toggle_mute(self):
         self.muted = not self.muted
         if self.available:
-            # 4. Ensure unmuting returns to 75%, NOT 100% (1.0)
             pygame.mixer.music.set_volume(0.0 if self.muted else self.music_volume)
 
-            # Sound effects can stay at default 1.0 volume unless you want to tie them to a variable too
             for sound in self.sounds.values():
                 sound.set_volume(0.0 if self.muted else 1.0)
