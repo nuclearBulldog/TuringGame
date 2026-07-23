@@ -5,12 +5,11 @@ Explore the overworld, get into "battles", and see how your decisions play out.
 
 Built with Python + pygame, and playable in the browser via a pygbag/WebAssembly build.
 
-<!-- Add once CI is set up (Tier 3): -->
-<!-- ![CI](https://github.com/nuclearBulldog/TuringGame/actions/workflows/ci.yml/badge.svg) -->
+[![CI](https://github.com/nuclearBulldog/TuringGame/actions/workflows/ci.yml/badge.svg)](https://github.com/nuclearBulldog/TuringGame/actions/workflows/ci.yml)
 
 **[Play in your browser](ADD_DEMO_URL_HERE)** | Desktop install below
 
-![TuringGame screenshot](docs/screenshot.png)
+![TuringGame screenshot](docs/demo.gif)
 
 # Installation Guide
 
