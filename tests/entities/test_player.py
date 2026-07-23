@@ -1,7 +1,7 @@
-import pytest
 import pygame
 import settings
 from entities.player import Player
+
 
 class MockTile:
     def __init__(self, x, y, w, h):

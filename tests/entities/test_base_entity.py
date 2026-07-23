@@ -1,6 +1,5 @@
-import pytest
-import pygame
 from entities.base_entity import BaseEntity
+
 
 def test_base_entity_init():
     entity = BaseEntity(10, 20, 30, 40)

@@ -1,6 +1,6 @@
 import pygame
-
 import settings
+
 
 class BattleUI:
     """Draws a Pokémon-style battle layout and move selector."""
@@ -89,7 +89,9 @@ class BattleUI:
                     (panel.x + padding, panel.y + padding))
 
         hp_y = panel.y + 52
-        self.draw_hp_bar(screen, panel.x + padding, hp_y, 210, 18, battle.player_hp, battle.player_max_hp)
+        self.draw_hp_bar(
+            screen, panel.x + padding, hp_y, 210, 18, battle.player_hp, battle.player_max_hp
+        )
 
         hp_text = f"{battle.player_hp}/{battle.player_max_hp}"
         txt = self.font.render(hp_text, False, settings.BLACK)
@@ -151,7 +153,8 @@ class BattleUI:
         button_w = (area_w - padding * (cols + 1)) // cols
         button_h = (area_h - padding * 3) // 2
 
-        for i, move in enumerate(battle_system.moves[:4]):  # Cap layout configuration to 4 standard moves
+        # Cap layout to the 4 standard moves
+        for i, move in enumerate(battle_system.moves[:4]):
             row, col = divmod(i, cols)
 
             x = area_x + padding + col * (button_w + padding)
@@ -191,7 +194,8 @@ class BattleUI:
             current_line = ""
 
             for word in words:
-                if not word: continue
+                if not word:
+                    continue
                 test_line = current_line + (" " if current_line else "") + word
                 text_width = font.size(test_line)[0]
 

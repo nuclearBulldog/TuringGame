@@ -1,6 +1,4 @@
 import pygame
-
-
 import settings
 from entities.base_entity import BaseEntity
 from systems.animation import AnimationController
@@ -115,4 +113,8 @@ class Enemy(BaseEntity):
         screen.blit(image, (draw_x - camera.offset.x, draw_y - camera.offset.y))
         color = settings.RED if self.state == 'patrol' else settings.YELLOW
 
-        pygame.draw.circle(screen, color, (int(self.rect.centerx - camera.offset.x), int(self.rect.y - 12 - camera.offset.y)), 4)
+        center = (
+            int(self.rect.centerx - camera.offset.x),
+            int(self.rect.y - 12 - camera.offset.y),
+        )
+        pygame.draw.circle(screen, color, center, 4)

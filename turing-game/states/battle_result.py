@@ -1,9 +1,9 @@
 import pygame
 import pygame_menu
-
 import settings
 from states.base_state import BaseState
 from systems.battle_system import BattleSystem
+
 
 class BattleResultState(BaseState):
     def __init__(self, manager, return_to_state=None, system = None):
@@ -48,7 +48,12 @@ class BattleResultState(BaseState):
             theme=theme,
         )
 
-        self.menu.add.label(title_text, font_name=settings.BASE_FONT, font_color=settings.WHITE, font_size=44)
+        self.menu.add.label(
+            title_text,
+            font_name=settings.BASE_FONT,
+            font_color=settings.WHITE,
+            font_size=44,
+        )
         self.menu.add.button('Details', self.toggle_details)
         self.menu.add.button('Play Again', self.play_again)
         self.menu.add.button('Main Menu', self.main_menu)

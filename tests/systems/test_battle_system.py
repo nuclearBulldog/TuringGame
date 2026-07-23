@@ -1,6 +1,8 @@
-import pytest
 import json
-from systems.battle_system import BattleSystem, Move
+
+import pytest
+from systems.battle_system import BattleSystem
+
 
 @pytest.fixture
 def mock_encounter_data(tmp_path, monkeypatch):
@@ -18,18 +20,18 @@ def mock_encounter_data(tmp_path, monkeypatch):
             ]
         }
     }
-    
+
     # Mock settings.ENCOUNTER_DIR to tmp_path
     monkeypatch.setattr(settings, "ENCOUNTER_DIR", tmp_path)
-    
+
     with open(tmp_path / "encounters.json", "w") as f:
         json.dump(encounters, f)
-        
+
     return "test_encounter"
 
 def test_battle_system_init(mock_encounter_data):
     system = BattleSystem(encounter_id=mock_encounter_data)
-    
+
     assert system.enemy_name == "Test Enemy"
     assert system.enemy_hp == 50
     assert system.player_hp == 100
@@ -40,10 +42,10 @@ def test_battle_system_init(mock_encounter_data):
 
 def test_battle_system_player_attack(mock_encounter_data):
     system = BattleSystem(encounter_id=mock_encounter_data)
-    
+
     # Use Attack (index 0, 20 damage)
     system.player_use_move(0)
-    
+
     assert system.enemy_hp == 30
     assert system.turn == 'enemy'
     assert "Attack" in system.moves_used
@@ -51,29 +53,29 @@ def test_battle_system_player_attack(mock_encounter_data):
 def test_battle_system_player_heal(mock_encounter_data):
     system = BattleSystem(encounter_id=mock_encounter_data)
     system.player_hp = 50 # manually reduce HP
-    
+
     # Use Heal (index 1, -10 damage)
     system.player_use_move(1)
-    
+
     assert system.player_hp == 60
     assert system.turn == 'enemy'
 
 def test_battle_system_enemy_turn(mock_encounter_data):
     system = BattleSystem(encounter_id=mock_encounter_data)
-    
+
     system.enemy_take_turn()
-    
+
     assert system.player_hp < 100
     assert system.turn == 'player'
 
 def test_battle_system_win(mock_encounter_data, monkeypatch):
     system = BattleSystem(encounter_id=mock_encounter_data)
-    
+
     # Modify attack to one-shot
     system.moves[0].damage = 100
-    
+
     system.player_use_move(0)
-    
+
     assert system.enemy_hp == 0
     assert system.battle_over
     assert system.player_won

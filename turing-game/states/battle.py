@@ -1,8 +1,8 @@
 import pygame
-
 from states.base_state import BaseState
 from systems.battle_system import BattleSystem
 from ui.battle_ui import BattleUI
+
 
 class BattleState(BaseState):
     def __init__(self, manager, return_to_state=None, system=None):
@@ -16,8 +16,8 @@ class BattleState(BaseState):
 
         self.ui = BattleUI(self.game.font, self.game.big_font)
 
-        self.selected_move = 0 
-        self.enemy_action_delay = 0.55 
+        self.selected_move = 0
+        self.enemy_action_delay = 0.55
         self.enemy_timer = 0.0
         self.finished_timer = 0.0
         self.finished_delay = 0.5
@@ -63,7 +63,8 @@ class BattleState(BaseState):
                         self.selected_move -= 1
 
                 elif event.key == pygame.K_RIGHT:
-                    if self.selected_move % 2 == 0 and self.selected_move + 1 < len(self.system.moves):
+                    if (self.selected_move % 2 == 0
+                            and self.selected_move + 1 < len(self.system.moves)):
                         self.selected_move += 1
 
                 elif event.key == pygame.K_UP:

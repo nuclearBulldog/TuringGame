@@ -1,5 +1,6 @@
 import os
 import sys
+
 import pytest
 
 # Add turing-game to sys.path so we can import from it easily in tests
@@ -11,6 +12,7 @@ os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 import pygame
 
+
 @pytest.fixture(autouse=True)
 def mock_pygame(monkeypatch):
     """
@@ -18,7 +20,7 @@ def mock_pygame(monkeypatch):
     Also mocks pygame-menu if needed.
     """
     pygame.init()
-    
+
     # Initialize a dummy display mode so convert_alpha() works
     import settings
     pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
@@ -34,7 +36,7 @@ def mock_pygame(monkeypatch):
 
     monkeypatch.setattr(pygame.font, "Font", MockFont)
     monkeypatch.setattr(pygame.font, "SysFont", MockFont)
-    
+
     # Disable pygame_menu font assertion so it accepts MockFont
     import pygame_menu
     if hasattr(pygame_menu, "themes"):
@@ -44,13 +46,13 @@ def mock_pygame(monkeypatch):
     try:
         import pygame_menu._widgetmanager
         monkeypatch.setattr(pygame_menu._widgetmanager, "assert_font", lambda f: None)
-    except:
+    except Exception:
         pass
     try:
         import pygame_menu.widgets.core.widget
         monkeypatch.setattr(pygame_menu.widgets.core.widget, "assert_font", lambda f: None)
-    except:
+    except Exception:
         pass
-    
+
     yield
     pygame.quit()

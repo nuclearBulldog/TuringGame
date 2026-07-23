@@ -1,5 +1,4 @@
 import pygame
-
 import settings
 from engine.camera import Camera
 from entities.enemy import Enemy

@@ -1,6 +1,8 @@
-import pygame
 import csv
+
+import pygame
 import settings
+
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, image, x, y):

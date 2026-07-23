@@ -1,7 +1,7 @@
-import pytest
 import pygame
 import settings
 from entities.enemy import Enemy
+
 
 class MockPlayer:
     def __init__(self, x, y):
@@ -21,7 +21,7 @@ def test_enemy_init():
 def test_enemy_patrol():
     enemy = Enemy(150, 100, 50)
     player = MockPlayer(500, 100)  # Far away
-    
+
     enemy.update(0.1, player, [])
     assert enemy.state == 'patrol'
     # Should move right

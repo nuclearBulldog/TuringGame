@@ -1,5 +1,4 @@
 import pygame
-
 import settings
 from entities.base_entity import BaseEntity
 from systems.animation import AnimationController

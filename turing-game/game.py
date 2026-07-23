@@ -3,8 +3,9 @@ import asyncio
 import pygame
 import settings
 from engine.state_manager import StateManager
-from systems.sound_manager import SoundManager
 from states.main_menu import MainMenu
+from systems.sound_manager import SoundManager
+
 
 class Game:
     def __init__(self):

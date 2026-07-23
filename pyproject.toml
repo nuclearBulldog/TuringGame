@@ -28,6 +28,8 @@ Repository = "https://github.com/nuclearBulldog/TuringGame"
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# Vendored deps and generated web builds are not our code.
+extend-exclude = ["turing-game/vendor", "turing-game/build", "turing-game/site/game"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]

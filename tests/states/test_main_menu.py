@@ -1,7 +1,7 @@
-import pytest
 import pygame
 import settings
 from states.main_menu import MainMenu
+
 
 class MockManager:
     def __init__(self):
@@ -25,14 +25,14 @@ def test_main_menu_init():
     manager = MockManager()
     menu = MainMenu(manager)
     menu.game = MockGame()
-    
+
     assert len(menu.buttons) == 2
 
 def test_main_menu_start_game():
     manager = MockManager()
     menu = MainMenu(manager)
     menu.game = MockGame()
-    
+
     menu.start_game()
     assert manager.changed_state is not None
     assert manager.changed_state.__class__.__name__ == "Overworld"
@@ -41,7 +41,7 @@ def test_main_menu_mute_toggle():
     manager = MockManager()
     menu = MainMenu(manager)
     menu.game = MockGame()
-    
+
     assert menu.game.sound_manager.muted is False
     menu.toggle_mute()
     assert menu.game.sound_manager.muted is True
@@ -51,12 +51,12 @@ def test_main_menu_quit(monkeypatch):
     manager = MockManager()
     menu = MainMenu(manager)
     menu.game = MockGame()
-    
+
     exited = False
     def mock_exit():
         nonlocal exited
         exited = True
-        
+
     monkeypatch.setattr(sys, "exit", mock_exit)
     menu.quit_game()
     assert exited is True

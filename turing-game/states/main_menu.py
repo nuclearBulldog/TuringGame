@@ -2,10 +2,8 @@ import sys
 
 import pygame
 import settings
-from states.base_state import BaseState
-from pathlib import Path
 from assets.image_button import ImageButton
-
+from states.base_state import BaseState
 
 ASSETS_DIR = settings.ASSETS_DIR
 SCALE_FACTOR = 3.0
@@ -56,11 +54,18 @@ class MainMenu(BaseState):
 
         button_offset_x = self.menu_rect.width // 2 - self.img_play_normal.get_width() // 2
         button_offset_y = 20 * SCALE_FACTOR # padding
-        self.btn_start_pos = (self.menu_rect.x + button_offset_x, self.menu_rect.y + button_offset_y)
-        self.btn_start = ImageButton(self.btn_start_pos, self.img_play_normal, self.img_play_hover, self.start_game)
+        self.btn_start_pos = (
+            self.menu_rect.x + button_offset_x,
+            self.menu_rect.y + button_offset_y,
+        )
+        self.btn_start = ImageButton(
+            self.btn_start_pos, self.img_play_normal, self.img_play_hover, self.start_game
+        )
         start_x, start_y = self.btn_start_pos
         quit_y = start_y + self.img_play_normal.get_height() + 20
-        self.btn_quit = ImageButton((start_x, quit_y), self.img_quit_normal, self.img_quit_hover, self.quit_game)
+        self.btn_quit = ImageButton(
+            (start_x, quit_y), self.img_quit_normal, self.img_quit_hover, self.quit_game
+        )
         self.buttons = [self.btn_start, self.btn_quit]
 
     def start_game(self):
@@ -90,7 +95,9 @@ class MainMenu(BaseState):
         subtitle = self.game.font.render(
             'A game about the ethical use of Artificial Intelligence', True, settings.WHITE
         )
-        subtitle_rect = subtitle.get_rect(center=(settings.WIDTH // 2, (self.logo_rect.bottom + self.menu_rect.top) // 2))
+        subtitle_rect = subtitle.get_rect(
+            center=(settings.WIDTH // 2, (self.logo_rect.bottom + self.menu_rect.top) // 2)
+        )
         screen.blit(subtitle, subtitle_rect)
 
         for button in self.buttons:

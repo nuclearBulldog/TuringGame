@@ -1,32 +1,29 @@
 import pygame
-import pytest
-from engine.camera import Camera
 import settings
+from engine.camera import Camera
+
 
 def test_camera_init():
     cam = Camera()
     assert cam.offset.x == 0
     assert cam.offset.y == 0
 
-def test_camera_update():
+def test_camera_update(monkeypatch):
     cam = Camera()
-    # Mock settings to be predictable
-    orig_width, orig_height, orig_lerp = settings.WIDTH, settings.HEIGHT, settings.CAMERA_LERP
-    settings.WIDTH = 800
-    settings.HEIGHT = 600
-    settings.CAMERA_LERP = 1.0
+    # Mock settings to be predictable (monkeypatch auto-restores after the test,
+    # even if an assertion fails, so no global state leaks into other tests).
+    monkeypatch.setattr(settings, "WIDTH", 800)
+    monkeypatch.setattr(settings, "HEIGHT", 600)
+    monkeypatch.setattr(settings, "CAMERA_LERP", 1.0)
 
     target = pygame.Rect(400, 300, 50, 50)
     # Center of target is (425, 325)
     # desired x = 425 - 400 = 25
     # desired y = 325 - 300 = 25
     cam.update(target)
-    
+
     assert cam.offset.x == 25
     assert cam.offset.y == 25
-
-    # Restore settings
-    settings.WIDTH, settings.HEIGHT, settings.CAMERA_LERP = orig_width, orig_height, orig_lerp
 
 def test_camera_apply():
     cam = Camera()

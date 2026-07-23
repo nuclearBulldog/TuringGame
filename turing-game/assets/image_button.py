@@ -1,5 +1,6 @@
 import pygame
 
+
 class ImageButton:
     def __init__(self, pos, image_normal, image_hover, callback):
         self.image_normal = image_normal

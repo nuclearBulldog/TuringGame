@@ -1,6 +1,6 @@
 import sys
-import pygame
 
+import pygame
 import settings
 from states.base_state import BaseState
 from ui.button import Button
@@ -47,7 +47,8 @@ class SummaryMenu(BaseState):
         for button in self.buttons:
             button.draw(screen)
         muted_text = 'Muted: ON' if self.game.sound_manager.muted else 'Muted: OFF'
-        screen.blit(self.game.font.render(muted_text, True, settings.WHITE), (20, settings.HEIGHT - 34))
+        muted_surface = self.game.font.render(muted_text, True, settings.WHITE)
+        screen.blit(muted_surface, (20, settings.HEIGHT - 34))
 
     def handle_events(self, events):
         for event in events:

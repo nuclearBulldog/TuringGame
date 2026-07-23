@@ -1,6 +1,8 @@
-import random
 import json
+import random
+
 import settings
+
 
 class Move:
     """A battle move. Damage < 0 means healing."""
@@ -21,7 +23,9 @@ class BattleSystem:
         except FileNotFoundError as error:
             raise FileNotFoundError(f'Encounter data file not found: {data_path}') from error
         except json.JSONDecodeError as error:
-            raise ValueError(f'Encounter data file is not valid JSON ({data_path}): {error}') from error
+            raise ValueError(
+                f'Encounter data file is not valid JSON ({data_path}): {error}'
+            ) from error
 
         encounter_data = database.get(encounter_id)
 
@@ -67,7 +71,10 @@ class BattleSystem:
 
         if move.name == "Use ChatGPT":
             self.enemy_hp = 0
-            self.message = 'ChatGPT Finished the entire report! ...Your tutor wants to speak with you outside!'
+            self.message = (
+                'ChatGPT Finished the entire report! '
+                '...Your tutor wants to speak with you outside!'
+            )
             self.player_won = False
             self.generate_results(win=False)
             return
@@ -76,7 +83,10 @@ class BattleSystem:
             actual_damage = min(move.damage, self.enemy_hp)
             self.total_damage_dealt += actual_damage
             self.enemy_hp -= actual_damage
-            self.message = f'You decided to {move.name}, {move.description}... dealing {actual_damage} damage!'
+            self.message = (
+                f'You decided to {move.name}, {move.description}... '
+                f'dealing {actual_damage} damage!'
+            )
         else:
             heal = -move.damage
             self.player_hp += heal
