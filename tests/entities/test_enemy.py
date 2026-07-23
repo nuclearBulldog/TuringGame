@@ -60,3 +60,64 @@ def test_enemy_collision():
     # Should hit wall and reverse direction
     assert enemy.rect.right == wall.rect.left
     assert enemy.direction == -1
+
+
+def test_enemy_patrol_left_edge_reverses():
+    enemy = Enemy(150, 100, 50)  # patrol_min_x == 100
+    player = MockPlayer(900, 100)  # far away -> patrol
+    enemy.direction = -1
+    enemy.rect.x = 90  # at/under the left patrol bound
+
+    enemy.update(0.1, player, [])
+    assert enemy.direction == 1
+
+
+def test_enemy_left_collision_reverses():
+    enemy = Enemy(300, 100, 200)  # patrol range 100..500, so 300 is mid-patrol
+    player = MockPlayer(900, 100)  # far away -> patrol
+    enemy.direction = -1  # patrol drives vel.x negative
+
+    wall = MockTile(270, 100, 30, 60)  # right edge flush at x=300
+    enemy.update(0.1, player, [wall])
+
+    assert enemy.rect.left == wall.rect.right
+    assert enemy.direction == 1
+
+
+def test_enemy_ground_collision():
+    enemy = Enemy(150, 100, 50)
+    player = MockPlayer(900, 100)  # far away
+
+    floor = MockTile(140, 140, 60, 20)  # top at y=140, beneath the enemy
+    enemy.update(0.1, player, [floor])
+
+    assert enemy.on_ground is True
+    assert enemy.vel.y == 0
+    assert enemy.rect.bottom == floor.rect.top
+
+
+def test_enemy_ceiling_collision():
+    enemy = Enemy(150, 100, 50)
+    player = MockPlayer(900, 100)  # far away
+    enemy.vel.y = -650  # strong upward velocity, survives gravity
+
+    ceiling = MockTile(120, 20, 90, 40)  # bottom at y=60, in the upward path
+    enemy.update(0.1, player, [ceiling])
+
+    assert enemy.rect.top == ceiling.rect.bottom
+    assert enemy.vel.y == 0
+    assert enemy.on_ground is False
+
+
+def test_enemy_draw_runs_in_both_states():
+    class MockCamera:
+        offset = pygame.Vector2(10, 10)
+
+    enemy = Enemy(150, 100, 50)
+    enemy.direction = -1  # exercise the horizontal flip branch
+    screen = pygame.Surface((400, 400))
+
+    enemy.state = 'patrol'  # red marker branch
+    enemy.draw(screen, MockCamera())
+    enemy.state = 'chase'  # yellow marker branch
+    enemy.draw(screen, MockCamera())

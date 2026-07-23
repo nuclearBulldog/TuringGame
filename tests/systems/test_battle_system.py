@@ -140,3 +140,49 @@ def test_battle_system_invalid_json_raises(tmp_path, monkeypatch):
     (tmp_path / "encounters.json").write_text("{not valid json")
     with pytest.raises(ValueError):
         BattleSystem(encounter_id="test_encounter")
+
+
+def test_battle_system_unknown_encounter_raises(mock_encounter_data):
+    with pytest.raises(ValueError):
+        BattleSystem(encounter_id="no_such_encounter")
+
+
+def test_battle_system_player_faints_on_enemy_turn(mock_encounter_data):
+    system = BattleSystem(encounter_id=mock_encounter_data)
+    system.player_hp = 3  # any enemy hit (5/7/9) is lethal
+
+    system.enemy_take_turn()
+
+    assert system.player_hp == 0
+    assert system.player_won is False
+    assert system.battle_over
+    # Loss summary branch
+    assert system.score == 10
+    assert ("Failed the assignment", False) in system.summary_items
+    assert "fainted" in system.message
+
+
+def test_battle_system_barely_survived_win(mock_encounter_data):
+    system = BattleSystem(encounter_id=mock_encounter_data)
+    system.moves[0].damage = 100  # one-shot
+    system.player_hp = 30  # 30% HP -> below the 50% bonus threshold
+    system.player_use_move(0)
+
+    assert system.player_won
+    # base 100 (win) + 0 (no HP bonus) + 200 (<=3 turns) == 300
+    assert system.score == 300
+    assert ("Barely survived... (Meh, <50%)", False) in system.summary_items
+
+
+def test_battle_system_slow_win_gets_no_speed_bonus(mock_encounter_data):
+    system = BattleSystem(encounter_id=mock_encounter_data)
+    system.moves[0].damage = 10  # 50 HP enemy takes 5 hits -> 5 turns
+
+    for _ in range(5):
+        system.player_use_move(0)
+
+    assert system.player_won
+    assert system.turns_taken == 5
+    # base 100 (win) + 200 (flawless HP) + 0 (slow) == 300
+    assert system.score == 300
+    assert ("Slow and Steady 5 turns", False) in system.summary_items

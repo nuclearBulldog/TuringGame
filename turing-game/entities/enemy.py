@@ -96,7 +96,10 @@ class Enemy(BaseEntity):
                         self.rect.bottom = tile.rect.top
                         self.on_ground = True
                     elif self.vel.y < 0:
-
+                        # TODO: ceiling hit leaves `direction` unchanged, so a
+                        # patrolling enemy that bonks its head keeps drifting the
+                        # same way instead of turning back. Revisit if enemies
+                        # ever move under low ceilings.
                         self.rect.top = tile.rect.bottom
                     self.vel.y = 0
                     self.pos.y = self.rect.y
