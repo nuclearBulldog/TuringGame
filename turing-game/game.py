@@ -15,7 +15,6 @@ class Game:
         pygame.display.set_caption(settings.TITLE)
         self.clock = pygame.time.Clock()
         self.running = True
-        self._game_finished = False
 
         self.font = pygame.font.Font(settings.BASE_FONT, 20)
         self.big_font = pygame.font.Font(settings.BASE_FONT, 32)

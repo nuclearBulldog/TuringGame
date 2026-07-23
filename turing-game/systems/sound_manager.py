@@ -7,8 +7,6 @@ class SoundManager:
     def __init__(self):
         self.available = False
         self.muted = False
-        self.sounds = {}
-
         self.music_volume = 0.75
 
         try:
@@ -16,19 +14,6 @@ class SoundManager:
             self.available = True
         except pygame.error:
             self.available = False
-
-    def load_sound(self, name, path):
-        if not self.available: return
-        try:
-            self.sounds[name] = pygame.mixer.Sound(path)
-        except pygame.error:
-            pass
-
-    def play(self, name, loops=0):
-        if not self.available or self.muted: return
-        sound = self.sounds.get(name)
-        if sound:
-            sound.play(loops=loops)
 
     def play_music(self, path, loops=-1):
         """Streams a background WAV file. Loops infinitely at 75% volume."""
@@ -54,6 +39,3 @@ class SoundManager:
         self.muted = not self.muted
         if self.available:
             pygame.mixer.music.set_volume(0.0 if self.muted else self.music_volume)
-
-            for sound in self.sounds.values():
-                sound.set_volume(0.0 if self.muted else 1.0)

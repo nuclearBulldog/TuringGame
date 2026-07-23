@@ -12,7 +12,6 @@ class BattleResultState(BaseState):
         self.system = system if system else BattleSystem()
 
         self.base_font = settings.BASE_FONT
-        self.title_font = pygame.font.Font()
 
         self.win = self.system.player_won
         self.show_details = False
@@ -48,10 +47,6 @@ class BattleResultState(BaseState):
             settings.HEIGHT,
             theme=theme,
         )
-
-
-
-        self.menu.center_content()
 
         self.menu.add.label(title_text, font_name=settings.BASE_FONT, font_color=settings.WHITE, font_size=44)
         self.menu.add.button('Details', self.toggle_details)

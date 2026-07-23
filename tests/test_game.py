@@ -12,7 +12,6 @@ def test_game_init(monkeypatch):
     game = Game()
     
     assert game.running is True
-    assert game._game_finished is False
     assert game.state_manager is not None
     assert game.state_manager.state.__class__.__name__ == "MainMenu"
 

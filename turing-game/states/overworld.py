@@ -19,7 +19,6 @@ class Overworld(BaseState):
         self.camera = Camera()
         self.enemies = [Enemy(x, y) for (x, y) in self.tilemap.enemy_spawns] or [Enemy(620, 180)]
         self._battle_started = False
-        self._game_finished = False
 
     def update(self, dt):
         self._battle_started = False
