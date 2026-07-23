@@ -2,20 +2,21 @@
 
 ## 1. Build the web bundle
 
-From the project root on your local machine:
+From the project root on your local machine (see `docs/web-build.md` for the
+full build, including vendoring `pygame_menu`):
 
 ```bash
 pip install pygbag~=0.9.0
-python -m pygbag turing-game/main_web.py
+cd turing-game
+python -m pygbag --build .
 ```
 
-pygbag starts a local dev server and writes the static build to `build/web/`.
-Once the terminal shows the build is complete, Ctrl-C to stop the server.
+pygbag writes the static build to `turing-game/build/web/`.
 
 ## 2. Copy files to the EC2 instance
 
 ```bash
-scp -r build/web/ ec2-user@<your-ec2-ip>:/var/www/html/turinggame/
+scp -r turing-game/build/web/ ec2-user@<your-ec2-ip>:/var/www/html/turinggame/
 ```
 
 Replace `ec2-user` and the IP with your actual SSH user and instance address.

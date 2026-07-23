@@ -22,3 +22,6 @@ turing-game/site/game/
 
 .coverage
 *.bkp
+
+.ruff_cache/
+.pytest_cache/
