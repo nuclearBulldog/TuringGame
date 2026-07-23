@@ -7,7 +7,7 @@ Built with Python + pygame, and playable in the browser via a pygbag/WebAssembly
 
 [![CI](https://github.com/nuclearBulldog/TuringGame/actions/workflows/ci.yml/badge.svg)](https://github.com/nuclearBulldog/TuringGame/actions/workflows/ci.yml)
 
-**[Play in your browser](ADD_DEMO_URL_HERE)** | Desktop install below
+**[Play in your browser]()** | Desktop install below
 
 ![TuringGame screenshot](docs/demo.gif)
 
@@ -18,23 +18,23 @@ Built with Python + pygame, and playable in the browser via a pygbag/WebAssembly
 ### Prerequisites
 
 - **git**
-- python **3.10**
+- python **3.11**
 
 ```bash
 # MacOS
-$ brew install git python3.10
+$ brew install git python3.11
 
 # Arch Linux
-$ sudo pacman -S git python3.10
+$ sudo pacman -S git python3.11
 
 # Fedora
-$ sudo dnf install git python3.10
+$ sudo dnf install git python3.11
 
 # Debian/Ubuntu
-$ sudo apt install git python3.10
+$ sudo apt install git python3.11
 
 # gentoo
-sudo emerge --ask --verbose dev-lang/python:3.10 dev-vcs/git
+sudo emerge --ask --verbose dev-lang/python:3.11 dev-vcs/git
 
 ```
 
@@ -49,7 +49,7 @@ $ cd TuringGame
 #### 2. Create and activate the Virtual Environment
 ```bash
 $ mkdir .venv
-$ python3.10 -m venv .venv
+$ python3.11 -m venv .venv
 $ source .venv/bin/activate
 ```
 #### 3. Install Dependencies
@@ -73,7 +73,7 @@ Windows
 disclaimer: the windows installation guide was written using AI as i do not have a windows machine, keep in mind this may be incorrect
 
 ### Prerequisites
-- Python **3.10** ([download here](https://www.python.org/downloads/))
+- Python **3.11** ([download here](https://www.python.org/downloads/))
 - **Git** ([download here](https://git-scm.com/download/win))
 
 ### Installation
@@ -123,6 +123,6 @@ From the repo root, with the virtual environment activated:
 $ pytest
 ```
 
-The test suite (47 tests) runs headless, so no window or audio device required.
+The test suite runs headless, so no window or audio device required.
 
 ---

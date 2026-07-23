@@ -1,0 +1,72 @@
+name: Deploy web build to GitHub Pages
+
+# Builds the pygbag (WebAssembly) bundle and publishes the site/ landing page
+# with the game embedded. Generated dirs (build/, vendor/) stay git-ignored —
+# they are regenerated here on every push. See docs/web-build.md.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissions the deploy-pages action requires.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a newer run supersede an in-progress one; never cancel a live deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # pygame_menu (and its pure-Python deps) cannot be fetched at runtime in
+      # the browser, so they are vendored into the bundle. pygame itself is
+      # provided by pygbag and must NOT be vendored. See docs/web-build.md.
+      - name: Vendor pure-Python deps for the WASM bundle
+        run: |
+          python -m pip install --no-deps --target turing-game/vendor \
+            pygame-menu pyperclip typing_extensions
+
+      - name: Install pygbag
+        run: python -m pip install "pygbag~=0.9.2"
+
+      # --build builds and exits (no dev server). --disable-sound-format-error
+      # tolerates the non-WASM main-theme.wav (see the audio gotcha in web-build.md).
+      - name: Build web bundle
+        working-directory: turing-game
+        run: python -m pygbag --build --disable-sound-format-error .
+
+      # The landing page embeds the game via <iframe src="game/index.html">.
+      - name: Assemble landing page + game
+        working-directory: turing-game
+        run: |
+          rm -rf site/game
+          mkdir -p site/game
+          cp -R build/web/. site/game/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: turing-game/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
