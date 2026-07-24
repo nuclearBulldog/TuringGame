@@ -37,7 +37,7 @@ class Game:
             self.state_manager.draw(self.screen)
 
             pygame.display.flip()
-            # Yield to the browser's event loop under pygbag; a no-op on desktop.
+            # Yield to the event loop each frame so run() stays cooperatively async.
             await asyncio.sleep(0)
 
         pygame.quit()

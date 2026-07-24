@@ -1,5 +1,4 @@
-# Development, testing, and web-build tooling.
+# Development and testing tooling.
 -r requirements.txt
 pytest~=9.0.3
 pytest-cov~=7.1.0
-pygbag~=0.9.0

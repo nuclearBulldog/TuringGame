@@ -16,10 +16,6 @@ __pycache__
 *.log
 dist
 
-turing-game/build/
-turing-game/vendor/
-turing-game/site/game/
-
 .coverage
 *.bkp
 

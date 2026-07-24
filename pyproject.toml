@@ -1,7 +1,7 @@
 [project]
 name = "turing-game"
 version = "0.1.0"
-description = "A short narrative platformer with turn-based mechanics about the ethical use of AI. Built with Python + pygame, playable in the browser via pygbag/WebAssembly."
+description = "A short narrative platformer with turn-based mechanics about the ethical use of AI. Built with Python + pygame."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE.txt" }
@@ -19,7 +19,6 @@ dependencies = [
 dev = [
     "pytest~=9.0.3",
     "pytest-cov~=7.1.0",
-    "pygbag~=0.9.0",
 ]
 
 [project.urls]
@@ -28,8 +27,6 @@ Repository = "https://github.com/nuclearBulldog/TuringGame"
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-# Vendored deps and generated web builds are not our code.
-extend-exclude = ["turing-game/vendor", "turing-game/build", "turing-game/site/game"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
