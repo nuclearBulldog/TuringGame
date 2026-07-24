@@ -1,7 +1,13 @@
 import csv
+from collections import namedtuple
 
 import pygame
 import settings
+from systems import encounter_data
+
+# An enemy placement resolved from the level grid: pixel position plus the
+# encounter id its spawn tile is bound to.
+EnemySpawn = namedtuple('EnemySpawn', ['x', 'y', 'encounter_id'])
 
 
 class Tile(pygame.sprite.Sprite):
@@ -30,6 +36,8 @@ class TileMap:
 
         self.player_spawn = (100, 100)
         self.enemy_spawns = []
+        self.goal_rect = None
+        self._spawn_tile_ids = encounter_data.spawn_tile_map()
 
         self._build_world()
 
@@ -63,8 +71,18 @@ class TileMap:
                 elif tile == 2:
                     self.player_spawn = (x * self.tile_size, y * self.tile_size)
 
-                elif tile == 3:
-                    self.enemy_spawns.append((x * self.tile_size, y * self.tile_size))
+                elif tile == 4:
+                    self.goal_rect = pygame.Rect(
+                        x * self.tile_size, y * self.tile_size,
+                        self.tile_size, self.tile_size,
+                    )
+
+                elif tile in self._spawn_tile_ids:
+                    self.enemy_spawns.append(EnemySpawn(
+                        x * self.tile_size,
+                        y * self.tile_size,
+                        self._spawn_tile_ids[tile],
+                    ))
 
 
     def draw(self, screen, camera):

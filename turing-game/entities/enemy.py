@@ -7,8 +7,9 @@ from systems.animation import AnimationController
 class Enemy(BaseEntity):
     """Enemy with a tiny AI state machine: patrol and chase."""
 
-    def __init__(self, x, y, patrol_distance=120):
+    def __init__(self, x, y, patrol_distance=120, encounter_id='report_due'):
         super().__init__(x, y, 28, 36)
+        self.encounter_id = encounter_id
         self.patrol_min_x = x - patrol_distance
         self.patrol_max_x = x + patrol_distance
 

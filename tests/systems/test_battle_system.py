@@ -116,15 +116,54 @@ def test_battle_system_hurt_win_bonus(mock_encounter_data):
     assert ("Not too bad (>=50%)", True) in system.summary_items
 
 
-def test_battle_system_use_chatgpt_instant_loss(mock_encounter_data):
-    # Regression: the "Use ChatGPT" move short-circuits to a loss with score 0.
+def test_battle_system_outcome_instant_loss(mock_encounter_data):
+    # A move carrying an instant-end loss outcome short-circuits to a scored-0 loss,
+    # driven entirely by JSON data (no move-name string checks).
     system = BattleSystem(encounter_id=mock_encounter_data)
-    system.moves[0].name = "Use ChatGPT"
+    system.moves[0].outcome = {
+        "instant_end": True,
+        "win": False,
+        "message": "Caught!",
+        "summary_items": [
+            ["Turned in the assignment", True],
+            ["Caught by AI Detector", False],
+        ],
+    }
     system.player_use_move(0)
 
     assert system.player_won is False
+    assert system.battle_over
     assert system.score == 0
+    assert system.message == "Caught!"
     assert ("Caught by AI Detector", False) in system.summary_items
+
+
+def test_battle_system_outcome_instant_win(mock_encounter_data):
+    # The outcome schema generalises: an instant-end win ends the battle as a win.
+    system = BattleSystem(encounter_id=mock_encounter_data)
+    system.moves[0].outcome = {
+        "instant_end": True,
+        "win": True,
+        "message": "You did the right thing.",
+        "summary_items": [["Reported it", True]],
+    }
+    system.player_use_move(0)
+
+    assert system.player_won is True
+    assert system.battle_over
+    assert system.message == "You did the right thing."
+    assert ("Reported it", True) in system.summary_items
+
+
+def test_battle_system_move_without_outcome_behaves_normally(mock_encounter_data):
+    # A move with no outcome block deals damage as usual — outcome is optional.
+    system = BattleSystem(encounter_id=mock_encounter_data)
+    assert system.moves[0].outcome is None
+    system.player_use_move(0)  # Attack, 20 damage
+
+    assert system.enemy_hp == 30
+    assert system.turn == 'enemy'
+    assert not system.battle_over
 
 
 def test_battle_system_missing_file_raises(tmp_path, monkeypatch):

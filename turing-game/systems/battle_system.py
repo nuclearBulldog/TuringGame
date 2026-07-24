@@ -1,31 +1,25 @@
-import json
 import random
 
-import settings
+from systems import encounter_data as encounter_db
 
 
 class Move:
-    """A battle move. Damage < 0 means healing."""
-    def __init__(self, name, damage, description=''):
+    """A battle move. Damage < 0 means healing.
+
+    ``outcome`` is an optional dict that, when present, forces the battle to a
+    scripted end when the move is used (see ``BattleSystem._apply_outcome``).
+    """
+    def __init__(self, name, damage, description='', outcome=None):
         self.name = name
         self.damage = damage
         self.description = description
+        self.outcome = outcome
 
 class BattleSystem:
     """Turn-based battle rules with no drawing code."""
 
     def __init__(self, encounter_id='report_due'):
-        data_path = settings.ENCOUNTER_DIR / 'encounters.json'
-
-        try:
-            with open(data_path, encoding='utf-8') as file:
-                database = json.load(file)
-        except FileNotFoundError as error:
-            raise FileNotFoundError(f'Encounter data file not found: {data_path}') from error
-        except json.JSONDecodeError as error:
-            raise ValueError(
-                f'Encounter data file is not valid JSON ({data_path}): {error}'
-            ) from error
+        database = encounter_db.load_encounters()
 
         encounter_data = database.get(encounter_id)
 
@@ -55,7 +49,8 @@ class BattleSystem:
             new_move = Move(
                 name=move_data['name'],
                 damage=move_data['damage'],
-                description=move_data['description']
+                description=move_data['description'],
+                outcome=move_data.get('outcome'),
             )
             self.moves.append(new_move)
 
@@ -69,14 +64,8 @@ class BattleSystem:
         self.moves_used.append(move.name)
         self.turns_taken += 1
 
-        if move.name == "Use ChatGPT":
-            self.enemy_hp = 0
-            self.message = (
-                'ChatGPT Finished the entire report! '
-                '...Your tutor wants to speak with you outside!'
-            )
-            self.player_won = False
-            self.generate_results(win=False)
+        if move.outcome and move.outcome.get('instant_end'):
+            self._apply_outcome(move.outcome)
             return
 
         if move.damage >= 0:
@@ -101,6 +90,19 @@ class BattleSystem:
             self.player_won = True
             self.generate_results(win=True)
 
+    def _apply_outcome(self, outcome):
+        """Force the battle to a scripted end defined by a move's JSON outcome.
+
+        Bypasses the normal scoring in ``generate_results``: scripted outcomes
+        always score 0 and show their own summary items. Setting ``enemy_hp`` to
+        0 flips ``battle_over`` so the battle state advances to the result screen.
+        """
+        self.enemy_hp = 0
+        self.message = outcome['message']
+        self.player_won = outcome['win']
+        self.score = 0
+        self.summary_items = [tuple(item) for item in outcome['summary_items']]
+
     def enemy_take_turn(self):
         damage = random.choice([5, 7, 9])
         self.player_hp -= damage
@@ -118,14 +120,6 @@ class BattleSystem:
         """ calculates final score, thus adding to the interactive learning part """
         self.summary_items = []
         self.score = 0
-
-        if "Use ChatGPT" in self.moves_used:
-            self.score = 0
-            self.summary_items.append(("Turned in the assignment", True))
-            self.summary_items.append(("Caught by AI Detector", False))
-            self.summary_items.append(("Academic Integrity Penalty", False))
-            self.summary_items.append(("F in the course", False))
-            return
 
         if win:
             self.score += 100

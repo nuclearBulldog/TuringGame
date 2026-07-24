@@ -16,6 +16,15 @@ class BattleResultState(BaseState):
         self.win = self.system.player_won
         self.show_details = False
 
+        # A win resumes the persistent level in place; a loss is terminal and
+        # only offers a fresh start (matching the original behaviour).
+        if self.win and self.return_to_state is not None:
+            self.forward_label = 'Continue'
+            self.forward_action = self.continue_level
+        else:
+            self.forward_label = 'Play Again'
+            self.forward_action = self.play_again
+
         bg_colour = (30, 160, 60) if self.win else (200, 40, 40)
 
         theme = pygame_menu.themes.THEME_DEFAULT.copy()
@@ -55,15 +64,20 @@ class BattleResultState(BaseState):
             font_size=44,
         )
         self.menu.add.button('Details', self.toggle_details)
-        self.menu.add.button('Play Again', self.play_again)
+        self.menu.add.button(self.forward_label, self.forward_action)
         self.menu.add.button('Main Menu', self.main_menu)
 
     def toggle_details(self):
         self.show_details = not self.show_details
 
+    def continue_level(self):
+        # Resume the persistent overworld and retire the enemy just defeated.
+        self.return_to_state.resolve_won_battle(self.system)
+        self.manager.change(self.return_to_state)
+
     def play_again(self):
         from states.overworld import Overworld
-        # Later: inject a generator or level ID here
+        # Starts a fresh, randomly chosen level.
         self.manager.change(Overworld(self.manager))
 
     def main_menu(self):
@@ -91,7 +105,7 @@ class BattleResultState(BaseState):
                     self.main_menu()
                 elif event.key == pygame.K_RETURN:
                     if not self.menu.get_current().get_selected_widget():
-                        self.play_again()
+                        self.forward_action()
 
     def draw(self, screen):
         result_font = pygame.font.Font(self.base_font, 24)

@@ -19,6 +19,14 @@ class MockBattleSystem:
         self.score = 150
         self.summary_items = [("Defeated enemy", True), ("Took too much damage", False)]
 
+
+class FakeOverworld:
+    def __init__(self):
+        self.resolved = None
+
+    def resolve_won_battle(self, system):
+        self.resolved = system
+
 def test_battle_result_init_win():
     # FR4: The system should display a end screen indicating if the user won or lost
     manager = MockManager()
@@ -68,3 +76,33 @@ def test_battle_result_buttons():
 
     state.main_menu()
     assert manager.changed_state.__class__.__name__ == "MainMenu"
+
+
+def test_battle_result_win_with_return_state_offers_continue():
+    # A win resumes the persistent level: the forward button continues it and
+    # tells the overworld to retire the defeated enemy.
+    manager = MockManager()
+    system = MockBattleSystem(won=True)
+    resumed = FakeOverworld()
+    state = BattleResultState(manager, system=system, return_to_state=resumed)
+    state.game = MockGame()
+
+    assert state.forward_label == "Continue"
+    state.forward_action()
+    assert resumed.resolved is system
+    assert manager.changed_state is resumed
+
+
+def test_battle_result_loss_is_terminal_play_again():
+    # A loss does NOT resume the level; the forward path starts a fresh level,
+    # exactly as before this change.
+    manager = MockManager()
+    system = MockBattleSystem(won=False)
+    resumed = FakeOverworld()
+    state = BattleResultState(manager, system=system, return_to_state=resumed)
+    state.game = MockGame()
+
+    assert state.forward_label == "Play Again"
+    state.forward_action()
+    assert resumed.resolved is None
+    assert manager.changed_state.__class__.__name__ == "Overworld"

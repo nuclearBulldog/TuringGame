@@ -17,6 +17,15 @@ def test_enemy_init():
     assert enemy.patrol_max_x == 200
     assert enemy.direction == 1
     assert enemy.state == 'patrol'
+    # Defaults to the original report_due encounter when unspecified.
+    assert enemy.encounter_id == 'report_due'
+
+
+def test_enemy_binds_encounter_id():
+    enemy = Enemy(150, 100, 50, encounter_id='deepfake_classmate')
+    assert enemy.encounter_id == 'deepfake_classmate'
+    # patrol_distance stays positional so existing call sites keep working.
+    assert enemy.patrol_min_x == 100
 
 def test_enemy_patrol():
     enemy = Enemy(150, 100, 50)
