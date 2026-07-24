@@ -1,6 +1,7 @@
 {
   "report_due": {
     "spawn_tile": 3,
+    "sprite": "report_due",
     "enemy_name": "Report Due",
     "enemy_hp": 140,
     "enemy_max_hp": 140,
@@ -20,10 +21,22 @@
           "win": false,
           "message": "ChatGPT Finished the entire report! ...Your tutor wants to speak with you outside!",
           "summary_items": [
-            ["Turned in the assignment", true],
-            ["Caught by AI Detector", false],
-            ["Academic Integrity Penalty", false],
-            ["F in the course", false]
+            [
+              "Turned in the assignment",
+              true
+            ],
+            [
+              "Caught by AI Detector",
+              false
+            ],
+            [
+              "Academic Integrity Penalty",
+              false
+            ],
+            [
+              "F in the course",
+              false
+            ]
           ]
         }
       },
@@ -41,6 +54,7 @@
   },
   "deepfake_classmate": {
     "spawn_tile": 5,
+    "sprite": "deepfake_classmate",
     "enemy_name": "Deepfake in the Group Chat",
     "enemy_hp": 110,
     "enemy_max_hp": 110,
@@ -65,9 +79,18 @@
           "win": false,
           "message": "You passed it on. By morning it's everywhere - and it traces back to you.",
           "summary_items": [
-            ["Amplified the fake", true],
-            ["Real harm to a classmate", false],
-            ["Named in a conduct complaint", false]
+            [
+              "Amplified the fake",
+              true
+            ],
+            [
+              "Real harm to a classmate",
+              false
+            ],
+            [
+              "Named in a conduct complaint",
+              false
+            ]
           ]
         }
       },
@@ -80,6 +103,7 @@
   },
   "hiring_filter": {
     "spawn_tile": 6,
+    "sprite": "hiring_filter",
     "enemy_name": "Biased Resume Filter",
     "enemy_hp": 125,
     "enemy_max_hp": 125,
@@ -104,9 +128,18 @@
           "win": false,
           "message": "You hid keywords in white text. The system flagged the trick and blacklisted you.",
           "summary_items": [
-            ["Tried to game the filter", true],
-            ["Caught manipulating the system", false],
-            ["Application blacklisted", false]
+            [
+              "Tried to game the filter",
+              true
+            ],
+            [
+              "Caught manipulating the system",
+              false
+            ],
+            [
+              "Application blacklisted",
+              false
+            ]
           ]
         }
       },
@@ -119,6 +152,7 @@
   },
   "exam_proctor": {
     "spawn_tile": 7,
+    "sprite": "exam_proctor",
     "enemy_name": "AI Exam Proctor",
     "enemy_hp": 120,
     "enemy_max_hp": 120,
@@ -143,9 +177,18 @@
           "win": false,
           "message": "You bailed in a panic. The session voided - now you're appealing from zero evidence.",
           "summary_items": [
-            ["Ended the session early", true],
-            ["Nothing to appeal with", false],
-            ["Exam voided", false]
+            [
+              "Ended the session early",
+              true
+            ],
+            [
+              "Nothing to appeal with",
+              false
+            ],
+            [
+              "Exam voided",
+              false
+            ]
           ]
         }
       },
@@ -158,6 +201,7 @@
   },
   "study_bot": {
     "spawn_tile": 8,
+    "sprite": "study_bot",
     "enemy_name": "Overconfident Study Bot",
     "enemy_hp": 115,
     "enemy_max_hp": 115,
@@ -182,9 +226,18 @@
           "win": false,
           "message": "You memorised its confident answers. Half were invented - and they were on the final.",
           "summary_items": [
-            ["Trusted it without checking", true],
-            ["Studied wrong information", false],
-            ["Bombed the final", false]
+            [
+              "Trusted it without checking",
+              true
+            ],
+            [
+              "Studied wrong information",
+              false
+            ],
+            [
+              "Bombed the final",
+              false
+            ]
           ]
         }
       },

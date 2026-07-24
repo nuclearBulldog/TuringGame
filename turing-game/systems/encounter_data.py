@@ -30,6 +30,18 @@ def load_encounters():
         ) from error
 
 
+def sprite_for(encounter_id, database=None):
+    """Return the sprite key declared by an encounter, or ``None`` if unset.
+
+    Keeps the ``"sprite"`` binding in the encounter JSON as the single source of
+    truth; callers pass the result to :class:`~entities.enemy.Enemy`.
+    """
+    if database is None:
+        database = load_encounters()
+    encounter = database.get(encounter_id) or {}
+    return encounter.get('sprite')
+
+
 def spawn_tile_map(database=None):
     """Map each encounter's optional ``spawn_tile`` id to its encounter id.
 

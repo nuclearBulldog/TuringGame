@@ -1,15 +1,20 @@
 import pygame
 import settings
 from entities.base_entity import BaseEntity
+from systems import sprites
 from systems.animation import AnimationController
 
 
 class Enemy(BaseEntity):
     """Enemy with a tiny AI state machine: patrol and chase."""
 
-    def __init__(self, x, y, patrol_distance=120, encounter_id='report_due'):
+    def __init__(self, x, y, patrol_distance=120, encounter_id='report_due', sprite_key=None):
         super().__init__(x, y, 28, 36)
         self.encounter_id = encounter_id
+        # The visible sprite: explicit key wins, else fall back to the encounter
+        # id, else the default. So a "Report Due" enemy looks like a looming
+        # deadline instead of a generic figure.
+        self.sprite_key = sprites.resolve_enemy_sprite(sprite_key, encounter_id)
         self.patrol_min_x = x - patrol_distance
         self.patrol_max_x = x + patrol_distance
 
@@ -24,21 +29,9 @@ class Enemy(BaseEntity):
         )
 
     def _build_animations(self):
-        def make_frame(arm=0, leg=0):
-            surf = pygame.Surface((32, 44), pygame.SRCALPHA)
-
-            pygame.draw.circle(surf, (255, 240, 150), (16, 8), 6)
-            pygame.draw.rect(surf, settings.RED, (9, 14, 14, 12), border_radius=4)
-
-            pygame.draw.line(surf, settings.BLACK, (14, 26), (11 - leg, 40), 3)
-            pygame.draw.line(surf, settings.BLACK, (18, 26), (21 + leg, 40), 3)
-            pygame.draw.line(surf, settings.BLACK, (9, 18), (2, 18 + arm), 3)
-            pygame.draw.line(surf, settings.BLACK, (23, 18), (30, 18 - arm), 3)
-
-            return surf
-        idle = [make_frame(0, 0), make_frame(1, 0)]
-        run = [make_frame(0, 3), make_frame(0, -3), make_frame(1, 2), make_frame(-1, -2)]
-        return {'idle': idle, 'run': run}
+        # Frames come from the enemy's row in assets/enemies.png; the {idle,run}
+        # keys stay identical so AnimationController is untouched.
+        return sprites.load_enemy_states(self.sprite_key)
 
     def update(self, dt, player, solids):
         distance_x = player.rect.centerx - self.rect.centerx

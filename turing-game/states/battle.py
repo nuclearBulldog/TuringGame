@@ -24,6 +24,8 @@ class BattleState(BaseState):
         self._result_shown = False
 
     def update(self, dt):
+       self.ui.update(dt, self.system)
+
        if self.system.turn == 'enemy' and not self.system.battle_over:
             self.enemy_timer += dt
             if self.enemy_timer >= self.enemy_action_delay:

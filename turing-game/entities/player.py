@@ -1,6 +1,7 @@
 import pygame
 import settings
 from entities.base_entity import BaseEntity
+from systems import sprites
 from systems.animation import AnimationController
 
 
@@ -17,21 +18,9 @@ class Player(BaseEntity):
         )
 
     def _build_animations(self):
-        def make_frame(body_offset=0, leg_offset=0, jump=False):
-            surf = pygame.Surface((32, 48), pygame.SRCALPHA)
-            pygame.draw.circle(surf, (245, 220, 180), (16, 8), 6)
-            pygame.draw.rect(surf, settings.BLUE, (10, 14, 12, 14), border_radius=4)
-            arm_y = 18 if not jump else 14
-            pygame.draw.line(surf, settings.WHITE, (10, arm_y), (3, arm_y + body_offset), 3)
-            pygame.draw.line(surf, settings.WHITE, (22, arm_y), (29, arm_y - body_offset), 3)
-            leg_y = 28
-            pygame.draw.line(surf, settings.BLACK, (14, leg_y), (12 - leg_offset, 42), 3)
-            pygame.draw.line(surf, settings.BLACK, (18, leg_y), (20 + leg_offset, 42), 3)
-            return surf
-        idle = [make_frame(0, 0), make_frame(1, 0)]
-        run = [make_frame(0, 3), make_frame(0, -3), make_frame(1, 2), make_frame(-1, -2)]
-        jump = [make_frame(2, 1, jump=True)]
-        return {'idle': idle, 'run': run, 'jump': jump}
+        # Frames come from assets/player.png via the shared sheet loader; the
+        # {idle,run,jump} keys stay identical so AnimationController is untouched.
+        return sprites.load_player_states()
 
     def update(self, dt, solids):
         keys = pygame.key.get_pressed()

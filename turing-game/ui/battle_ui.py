@@ -1,47 +1,108 @@
 import pygame
 import settings
+from systems import sprites, spritesheet
 
 
 class BattleUI:
-    """Draws a Pokémon-style battle layout and move selector."""
+    """Draws a Pokemon-style battle layout and move selector.
+
+    Owns the transient *presentation* state (hit-flash + shake timers) so the
+    battle rules in ``systems/battle_system.py`` stay drawing-free. HP is read
+    defensively via ``getattr`` so lightweight mock systems still work.
+    """
+
+    # Where each combatant stands, aligned to the pads baked into battle_bg.png.
+    ENEMY_POS = (648, 120)
+    ENEMY_SIZE = (64, 88)
+    PLAYER_POS = (150, 243)
+    PLAYER_SIZE = (64, 96)
+
+    # Damage-feedback feel — tune these to taste.
+    FLASH_TIME = 0.18
+    SHAKE_TIME = 0.30
+    SHAKE_MAG = 7
 
     def __init__(self, font, big_font):
         self.font = font
         self.big_font = big_font
 
-    def draw_hp_bar(self, screen, x, y, w, h, current, maximum):
-        ratio = 0 if maximum <= 0 else current / maximum
+        self.bg = spritesheet.load_sheet(sprites.BATTLE_BG)
+        self.hp_frame = spritesheet.load_sheet(sprites.HP_FRAME)
 
-        fill_w = int((w - 4) * ratio)
+        self._player_img = None
+        self._enemy_img = None
+        self._enemy_key = None
 
-        pygame.draw.rect(screen, settings.OUTLINE, (x, y, w, h))
+        self._last_enemy_hp = None
+        self._last_player_hp = None
+        self._enemy_flash = 0.0
+        self._player_flash = 0.0
+        self._enemy_shake = 0.0
+        self._player_shake = 0.0
 
-        pygame.draw.rect(screen, (80, 85, 80), (x + 2, y + 2, w - 4, h - 4))
+    # -- feedback -----------------------------------------------------------
+    def update(self, dt, battle_system):
+        """Advance flash/shake timers; a drop in either HP starts a new pulse."""
+        enemy_hp = getattr(battle_system, 'enemy_hp', None)
+        player_hp = getattr(battle_system, 'player_hp', None)
 
-        if fill_w > 0:
-            color = settings.HP_GREEN if ratio > 0.35 else settings.HP_RED
-            pygame.draw.rect(screen, color, (x + 2, y + 2, fill_w, h - 4))
+        if (enemy_hp is not None and self._last_enemy_hp is not None
+                and enemy_hp < self._last_enemy_hp):
+            self._enemy_flash = self.FLASH_TIME
+            self._enemy_shake = self.SHAKE_TIME
+        if (player_hp is not None and self._last_player_hp is not None
+                and player_hp < self._last_player_hp):
+            self._player_flash = self.FLASH_TIME
+            self._player_shake = self.SHAKE_TIME
 
-    def draw_creature(self, screen, x, y, color, facing_left=False):
-        surf = pygame.Surface((96, 96), pygame.SRCALPHA)
+        self._last_enemy_hp = enemy_hp
+        self._last_player_hp = player_hp
 
-        pygame.draw.ellipse(surf, color, (10, 25, 76, 46))
-        pygame.draw.circle(surf, settings.WHITE, (34, 42), 8)
-        pygame.draw.circle(surf, settings.BLACK, (35, 43), 3)
-        pygame.draw.circle(surf, settings.WHITE, (62, 42), 8)
-        pygame.draw.circle(surf, settings.BLACK, (61, 43), 3)
+        self._enemy_flash = max(0.0, self._enemy_flash - dt)
+        self._player_flash = max(0.0, self._player_flash - dt)
+        self._enemy_shake = max(0.0, self._enemy_shake - dt)
+        self._player_shake = max(0.0, self._player_shake - dt)
 
-        pygame.draw.arc(surf, settings.BLACK, (30, 48, 36, 20), 3.4, 6.0, 3)
+    def _shake_offset(self, remaining):
+        if remaining <= 0:
+            return 0
+        magnitude = self.SHAKE_MAG * (remaining / self.SHAKE_TIME)
+        step = int(remaining * 60)
+        return int(magnitude) * (1 if step % 2 else -1)
 
-        if facing_left:
-            surf = pygame.transform.flip(surf, True, False)
-        screen.blit(surf, (x, y))
+    def _flash_overlay(self, image, remaining):
+        mask = pygame.mask.from_surface(image)
+        overlay = mask.to_surface(setcolor=settings.HIT_FLASH, unsetcolor=(0, 0, 0, 0))
+        overlay.set_alpha(int(255 * remaining / self.FLASH_TIME))
+        return overlay
 
+    # -- sprites ------------------------------------------------------------
+    def _ensure_creatures(self, battle_system):
+        key = getattr(battle_system, 'sprite_key', sprites.DEFAULT_ENEMY_SPRITE)
+        if self._player_img is None:
+            self._player_img = pygame.transform.scale(
+                sprites.player_battle_frame(), self.PLAYER_SIZE)
+        if key != self._enemy_key:
+            self._enemy_key = key
+            self._enemy_img = pygame.transform.scale(
+                sprites.enemy_battle_frame(key), self.ENEMY_SIZE)
+
+    def _draw_creature(self, screen, image, pos, flash, shake):
+        dx = self._shake_offset(shake)
+        where = (pos[0] + dx, pos[1])
+        screen.blit(image, where)
+        if flash > 0:
+            screen.blit(self._flash_overlay(image, flash), where)
+
+    # -- top-level draw -----------------------------------------------------
     def draw(self, screen, battle_system, selected_index):
+        self._ensure_creatures(battle_system)
         self._draw_background(screen)
 
-        self.draw_creature(screen, 610, 42, settings.RED, facing_left=True)
-        self.draw_creature(screen, 120, 205, settings.BLUE, facing_left=False)
+        self._draw_creature(screen, self._enemy_img, self.ENEMY_POS,
+                            self._enemy_flash, self._enemy_shake)
+        self._draw_creature(screen, self._player_img, self.PLAYER_POS,
+                            self._player_flash, self._player_shake)
 
         self._draw_enemy_panel(screen, battle_system)
         self._draw_player_panel(screen, battle_system)
@@ -52,22 +113,36 @@ class BattleUI:
 
         self._draw_moves(screen, battle_system, selected_index)
 
+    def _draw_background(self, screen):
+        screen.blit(self.bg, (0, 0))
+
+    # -- HP bar -------------------------------------------------------------
+    def draw_hp_bar(self, screen, x, y, w, h, current, maximum):
+        ratio = 0 if maximum <= 0 else current / maximum
+        frame = pygame.transform.scale(self.hp_frame, (w, h))
+        screen.blit(frame, (x, y))
+
+        inset = 3
+        track_w = w - inset * 2
+        fill_w = int(track_w * ratio)
+        if fill_w > 0:
+            colour = settings.HP_FILL_HIGH if ratio > 0.35 else settings.HP_FILL_LOW
+            pygame.draw.rect(screen, colour, (x + inset, y + inset, fill_w, h - inset * 2))
+
+    # -- windows ------------------------------------------------------------
     def _draw_panel(self, screen, rect):
         """Draws a classic RPG double-frame window overlay."""
-        pygame.draw.rect(screen, settings.OUTLINE, rect)
-
+        pygame.draw.rect(screen, settings.UI_FRAME, rect)
         inner_rect = rect.inflate(-6, -6)
-        pygame.draw.rect(screen, settings.PANEL, inner_rect)
-
-        pygame.draw.rect(screen, settings.WHITE, inner_rect, width=2)
+        pygame.draw.rect(screen, settings.UI_PANEL, inner_rect)
+        pygame.draw.rect(screen, settings.UI_PANEL_EDGE, inner_rect, width=2)
 
     def _draw_enemy_panel(self, screen, battle):
         panel = pygame.Rect(520, 20, 300, 90)
         self._draw_panel(screen, panel)
 
         padding = 14
-
-        screen.blit(self.big_font.render(battle.enemy_name, False, settings.BLACK),
+        screen.blit(self.big_font.render(battle.enemy_name, False, settings.UI_TEXT),
                     (panel.x + padding, panel.y + padding))
 
         hp_x = panel.x + padding
@@ -75,7 +150,7 @@ class BattleUI:
         self.draw_hp_bar(screen, hp_x, hp_y, 170, 16, battle.enemy_hp, battle.enemy_max_hp)
 
         hp_text = f"{battle.enemy_hp}/{battle.enemy_max_hp}"
-        text_surface = self.big_font.render(hp_text, False, settings.BLACK)
+        text_surface = self.big_font.render(hp_text, False, settings.UI_TEXT)
         text_rect = text_surface.get_rect(right=panel.right - padding, top=hp_y + 20)
         screen.blit(text_surface, text_rect)
 
@@ -84,8 +159,7 @@ class BattleUI:
         self._draw_panel(screen, panel)
 
         padding = 14
-
-        screen.blit(self.big_font.render(battle.player_name, False, settings.BLACK),
+        screen.blit(self.big_font.render(battle.player_name, False, settings.UI_TEXT),
                     (panel.x + padding, panel.y + padding))
 
         hp_y = panel.y + 52
@@ -94,7 +168,7 @@ class BattleUI:
         )
 
         hp_text = f"{battle.player_hp}/{battle.player_max_hp}"
-        txt = self.font.render(hp_text, False, settings.BLACK)
+        txt = self.font.render(hp_text, False, settings.UI_TEXT)
         txt_rect = txt.get_rect(right=panel.right - padding, top=hp_y + 24)
         screen.blit(txt, txt_rect)
 
@@ -113,27 +187,18 @@ class BattleUI:
         lines = self._wrap_text(message, self.big_font, max_width)
 
         for i, line in enumerate(lines[:2]):
-            text = self.big_font.render(line, False, settings.BLACK)
-            # Increased line spacing slightly to 26 for better readability
+            text = self.big_font.render(line, False, settings.UI_TEXT)
             screen.blit(text, (box.x + 15, box.y + 15 + i * 26))
 
         if show_hint:
             hint = 'Arrows: Select   Enter: Use   Esc: Menu'
-            # Drawing it in dark gray (100,100,100) so it doesn't clash with the main black text
-            hint_surf = self.font.render(hint, False, (100, 100, 100))
+            hint_surf = self.font.render(hint, False, settings.UI_HINT)
             screen.blit(hint_surf, (box.x + 15, box.bottom - 24))
 
-    def _draw_background(self, screen):
-        screen.fill((180, 215, 235))
-        pygame.draw.rect(screen, (155, 200, 145), (0, 0, settings.WIDTH, settings.HEIGHT))
-
-        pygame.draw.ellipse(screen, (135, 165, 110), (580, 115, 210, 45))
-        pygame.draw.ellipse(screen, (135, 165, 110), (90, 290, 250, 65))
-
     def _draw_bottom_ui(self, screen):
-        pygame.draw.rect(screen, settings.PANEL, (0, 420, settings.WIDTH, 120))
-        pygame.draw.line(screen, settings.OUTLINE, (0, 420), (settings.WIDTH, 420), 4)
-        pygame.draw.line(screen, settings.OUTLINE, (520, 420), (520, 540), 4)
+        pygame.draw.rect(screen, settings.UI_PANEL, (0, 420, settings.WIDTH, 120))
+        pygame.draw.line(screen, settings.UI_FRAME, (0, 420), (settings.WIDTH, 420), 4)
+        pygame.draw.line(screen, settings.UI_FRAME, (520, 420), (520, 540), 4)
 
     def _draw_moves(self, screen, battle_system, selected_index):
         screen_w = screen.get_width()
@@ -153,44 +218,49 @@ class BattleUI:
         button_w = (area_w - padding * (cols + 1)) // cols
         button_h = (area_h - padding * 3) // 2
 
-        # Cap layout to the 4 standard moves
         for i, move in enumerate(battle_system.moves[:4]):
             row, col = divmod(i, cols)
 
             x = area_x + padding + col * (button_w + padding)
             y = area_y + padding + row * (button_h + padding)
-
             rect = pygame.Rect(x, y, button_w, button_h)
 
             selected = (
-                    i == selected_index
-                    and battle_system.turn == 'player'
-                    and not battle_system.battle_over
+                i == selected_index
+                and battle_system.turn == 'player'
+                and not battle_system.battle_over
             )
 
-            # Draw the retro box outline
-            pygame.draw.rect(screen, settings.OUTLINE, rect)
             inner = rect.inflate(-4, -4)
-
-            fill = settings.YELLOW if selected else settings.PANEL
-            pygame.draw.rect(screen, fill, inner)
+            if selected:
+                pygame.draw.rect(screen, settings.MOVE_SELECT_EDGE, rect)
+                pygame.draw.rect(screen, settings.MOVE_SELECT_FILL, inner)
+                pygame.draw.rect(screen, settings.MOVE_SELECT_EDGE, inner, width=3)
+                # a small pointer so the choice is unmistakable
+                pygame.draw.polygon(screen, settings.UI_FRAME, [
+                    (rect.x + 6, rect.centery - 5),
+                    (rect.x + 6, rect.centery + 5),
+                    (rect.x + 13, rect.centery),
+                ])
+            else:
+                pygame.draw.rect(screen, settings.UI_FRAME, rect)
+                pygame.draw.rect(screen, settings.MOVE_IDLE_FILL, inner)
 
             chosen_font = self.big_font
             text_width = chosen_font.size(move.name)[0]
             if text_width > (button_w - 12):
-                chosen_font = self.font  # Falls back automatically to smaller legible text
+                chosen_font = self.font
 
-            text_surf = chosen_font.render(move.name, False, settings.BLACK)
+            text_surf = chosen_font.render(move.name, False, settings.UI_TEXT)
             text_rect = text_surf.get_rect(center=rect.center)
             screen.blit(text_surf, text_rect)
 
     def _wrap_text(self, text, font, max_width):
-        # Split by explicit newlines first
         raw_lines = text.split('\n')
         wrapped_lines = []
 
         for raw_line in raw_lines:
-            words = raw_line.split(' ')  # Split by spaces
+            words = raw_line.split(' ')
             current_line = ""
 
             for word in words:

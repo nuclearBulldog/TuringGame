@@ -11,6 +11,7 @@ import random
 import settings
 from entities.enemy import Enemy
 from entities.player import Player
+from systems import encounter_data
 from world.tilemap import TileMap
 
 
@@ -20,7 +21,11 @@ class Level:
         px, py = self.tilemap.player_spawn
         self.player = Player(px, py)
         self.enemies = [
-            Enemy(spawn.x, spawn.y, encounter_id=spawn.encounter_id)
+            Enemy(
+                spawn.x, spawn.y,
+                encounter_id=spawn.encounter_id,
+                sprite_key=encounter_data.sprite_for(spawn.encounter_id),
+            )
             for spawn in self.tilemap.enemy_spawns
         ]
         self.cleared_encounters = set()

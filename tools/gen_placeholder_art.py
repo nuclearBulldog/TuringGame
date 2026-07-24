@@ -281,9 +281,10 @@ def build_battle_bg():
         px(s, dx, 250, "dgold", 120, 16)
         px(s, dx + 8, 266, "brown", 10, 34)
         px(s, dx + 100, 266, "brown", 10, 34)
-    # standing pads under each combatant (enemy top-right, player mid-left)
-    pygame.draw.ellipse(s, col("mbrown"), (580, 150, 210, 40))
-    pygame.draw.ellipse(s, col("mbrown"), (90, 300, 250, 55))
+    # standing pads under each combatant, aligned to the battle-scene anchors in
+    # ui/battle_ui.py (enemy right of its panel, player lower-left).
+    pygame.draw.ellipse(s, col("mbrown"), (600, 192, 170, 34))   # enemy feet ~ (685, 209)
+    pygame.draw.ellipse(s, col("mbrown"), (92, 322, 182, 34))    # player feet ~ (183, 339)
     return s
 
 
