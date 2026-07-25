@@ -2,20 +2,23 @@
 
 Every colour is an index into assets/colours/dawnbringer-32.pal. Real art later
 replaces these PNGs 1:1 against the grid documented in assets/README.md.
+
+Run with ``python tools/gen_placeholder_art.py``. Sheets that already exist are
+left alone unless ``--force`` is passed: several of them have since been
+replaced by hand-drawn art, and regenerating would silently destroy it.
 """
+import argparse
 import os
+import sys
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
-import pygame
+import pygame  # noqa: E402  (must follow the SDL driver env vars above)
 
-pygame.init()
-pygame.display.set_mode((8, 8))
-
-# tools/ sits at the repo root; assets live under turing-game/assets.
+# tools/ sits at the repo root; assets live under turing_game/assets.
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ASSETS = os.path.join(ROOT, "turing-game", "assets")
+ASSETS = os.path.join(ROOT, "turing_game", "assets")
 PAL_PATH = os.path.join(ASSETS, "colours", "dawnbringer-32.pal")
 
 
@@ -491,14 +494,45 @@ def build_hp():
     return s
 
 
-def save(surf, name):
+def save(surf, name, force):
+    """Write ``surf`` to assets/``name``, refusing to clobber existing art.
+
+    Returns True if the file was written. Several of these sheets have been
+    replaced by hand-drawn versions, so overwriting is opt-in via ``--force``.
+    """
     path = os.path.join(ASSETS, name)
+    if os.path.exists(path) and not force:
+        print(f"skip  {name:16} already exists (pass --force to overwrite)")
+        return False
     pygame.image.save(surf, path)
     print(f"wrote {name:16} {surf.get_width()}x{surf.get_height()}")
+    return True
 
 
-save(build_player(), "player.png")
-save(build_enemies(), "enemies.png")
-save(build_battle_bg(), "battle_bg.png")
-save(build_hp(), "hp.png")
-print("done")
+SHEETS = (
+    ("player.png", build_player),
+    ("enemies.png", build_enemies),
+    ("battle_bg.png", build_battle_bg),
+    ("hp.png", build_hp),
+)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "--force", action="store_true",
+        help="overwrite sheets that already exist (destroys hand-drawn art)",
+    )
+    args = parser.parse_args(argv)
+
+    pygame.init()
+    pygame.display.set_mode((8, 8))
+
+    written = sum(save(build(), name, args.force) for name, build in SHEETS)
+    skipped = len(SHEETS) - written
+    print(f"done: {written} written, {skipped} skipped")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

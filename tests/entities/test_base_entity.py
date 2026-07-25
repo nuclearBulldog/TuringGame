@@ -1,4 +1,4 @@
-from entities.base_entity import BaseEntity
+from turing_game.entities.base_entity import BaseEntity
 
 
 def test_base_entity_init():
@@ -9,6 +9,7 @@ def test_base_entity_init():
     assert entity.rect.height == 40
     assert entity.vel.x == 0
     assert entity.vel.y == 0
+
 
 def test_base_entity_sync_rect():
     entity = BaseEntity(0, 0, 10, 10)

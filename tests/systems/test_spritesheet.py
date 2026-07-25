@@ -1,6 +1,7 @@
 import pygame
 import pytest
-from systems import spritesheet
+
+from turing_game.systems import spritesheet
 
 
 def _make_sheet(cols, rows, frame_w, frame_h):

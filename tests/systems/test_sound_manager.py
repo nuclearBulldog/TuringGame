@@ -1,5 +1,6 @@
 import pygame
-from systems.sound_manager import SoundManager
+
+from turing_game.systems.sound_manager import SoundManager
 
 
 def test_init_defaults():

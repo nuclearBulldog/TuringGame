@@ -1,8 +1,9 @@
 import pygame
 import pytest
-from states.overworld import Overworld
-from world.level import Level
-from world.tilemap import EnemySpawn
+
+from turing_game.states.overworld import Overworld
+from turing_game.world.level import Level
+from turing_game.world.tilemap import EnemySpawn
 
 
 class MockManager:
@@ -41,7 +42,7 @@ class MockTileMap:
 
 @pytest.fixture
 def level(monkeypatch):
-    monkeypatch.setattr('world.level.TileMap', MockTileMap)
+    monkeypatch.setattr('turing_game.world.level.TileMap', MockTileMap)
     return Level('dummy')
 
 

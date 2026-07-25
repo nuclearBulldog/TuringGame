@@ -1,15 +1,18 @@
 import pygame
-import settings
-from entities.enemy import Enemy
+
+from turing_game import settings
+from turing_game.entities.enemy import Enemy
 
 
 class MockPlayer:
     def __init__(self, x, y):
         self.rect = pygame.Rect(x, y, 10, 10)
 
+
 class MockTile:
     def __init__(self, x, y, w, h):
         self.rect = pygame.Rect(x, y, w, h)
+
 
 def test_enemy_init():
     enemy = Enemy(150, 100, 50)
@@ -27,6 +30,7 @@ def test_enemy_binds_encounter_id():
     # patrol_distance stays positional so existing call sites keep working.
     assert enemy.patrol_min_x == 100
 
+
 def test_enemy_patrol():
     enemy = Enemy(150, 100, 50)
     player = MockPlayer(500, 100)  # Far away
@@ -42,6 +46,7 @@ def test_enemy_patrol():
     enemy.update(0.1, player, [])
     assert enemy.direction == -1
 
+
 def test_enemy_chase():
     enemy = Enemy(150, 100, 50)
     player = MockPlayer(170, 100)  # Within detection radius (200)
@@ -56,6 +61,7 @@ def test_enemy_chase():
     enemy.update(0.1, player, [])
     assert enemy.direction == -1
     assert enemy.vel.x == -settings.ENEMY_SPEED
+
 
 def test_enemy_collision():
     enemy = Enemy(150, 100, 50)

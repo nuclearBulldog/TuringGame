@@ -1,5 +1,6 @@
 import pygame
-from engine.state_manager import StateManager
+
+from turing_game.engine.state_manager import StateManager
 
 
 class MockState:
@@ -25,14 +26,17 @@ class MockState:
     def handle_events(self, events):
         self.handled_events = events
 
+
 class MockGame:
     pass
+
 
 def test_state_manager_init():
     game = MockGame()
     sm = StateManager(game)
     assert sm.game == game
     assert sm.state is None
+
 
 def test_state_manager_change():
     game = MockGame()
@@ -49,6 +53,7 @@ def test_state_manager_change():
     assert sm.state == state2
     assert state1.exited is True
     assert state2.entered is True
+
 
 def test_state_manager_delegation():
     game = MockGame()
