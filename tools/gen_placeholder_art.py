@@ -107,7 +107,7 @@ def outline(surf, name="ink"):
 
 
 # ----------------------------------------------------------------------------
-# PLAYER  — a student in a hoodie. Frame 32x48, 4 cols x 3 rows.
+# PLAYER  - a student in a hoodie. Frame 32x48, 4 cols x 3 rows.
 # row0 idle(2), row1 run(4), row2 jump(1)
 # ----------------------------------------------------------------------------
 # A 4-frame run: contact, passing-low, contact (mirrored), passing-high. Each
@@ -147,7 +147,7 @@ def draw_student(step, jump=False):
     lift, front, back = RUN_CYCLE[step]
     top = 7 + lift
 
-    # head — hair sits proud of the face so the silhouette has a readable crown
+    # head - hair sits proud of the face so the silhouette has a readable crown
     px(s, 11, top, "ink", 10, 5)
     px(s, 10, top + 2, "ink", 1, 3)
     px(s, 12, top + 4, "skin", 8, 7)
@@ -208,7 +208,7 @@ def build_player():
 
 
 # ----------------------------------------------------------------------------
-# ENEMIES — 32x44 frames, 4 cols x 5 rows. Each row = one sprite key with a
+# ENEMIES - 32x44 frames, 4 cols x 5 rows. Each row = one sprite key with a
 # 4-frame loop (idle samples cols 0-1, run samples cols 0-3).
 # ----------------------------------------------------------------------------
 def frame_surface():
@@ -247,7 +247,7 @@ def enemy_report_due(step):
 def draw_classmate_base(s, step):
     """The believable half: an ordinary classmate, drawn straight.
 
-    Everything here is deliberately unremarkable — a face the player would scroll
+    Everything here is deliberately unremarkable - a face the player would scroll
     past. The sprite only works if this part is convincing first, because the
     horror of a deepfake is that it looks fine until you notice what is wrong.
     """
@@ -300,7 +300,7 @@ def enemy_misinformation(step):
 
     The silhouette reads as a reply bubble; the tell is instability. On alternate
     frames a citation line glows red (a fact it made up) and the corner badge
-    flips from a green tick to a red cross — the answer looks sourced and certain
+    flips from a green tick to a red cross - the answer looks sourced and certain
     and is neither. That flicker is the whole point of the sprite.
     """
     s = frame_surface()
@@ -334,7 +334,7 @@ def enemy_misinformation(step):
 
 
 def enemy_exam_proctor(step):
-    """A ceiling camera that is mostly lens — an eye that never blinks.
+    """A ceiling camera that is mostly lens - an eye that never blinks.
 
     The housing is deliberately small and the aperture huge: at battle scale the
     only thing that has to survive is the pupil tracking you across the frames.
@@ -358,7 +358,7 @@ def enemy_exam_proctor(step):
     px(s, 14 + look, 17, "ink", 4, 6)                          # pupil
     px(s, 15 + look, 18, "white", 1, 2)                        # catchlight
 
-    # record light — on for three frames in four, so it reads as barely blinking
+    # record light - on for three frames in four, so it reads as barely blinking
     if step != 2:
         px(s, 24, 9, "red", 3, 3)
         px(s, 24, 9, "pink", 3, 1)
@@ -371,7 +371,7 @@ def enemy_study_bot(step):
     """A study robot that is cheerfully, confidently wrong.
 
     The grin never changes across the cycle; only the thumb pumps. Unwavering
-    friendliness is the tell — it is the sprite for an assistant that answers
+    friendliness is the tell - it is the sprite for an assistant that answers
     just as brightly whether or not it knows.
     """
     s = frame_surface()
@@ -428,7 +428,7 @@ def build_enemies():
 
 
 # ----------------------------------------------------------------------------
-# BATTLE BACKDROP — 960x580 campus / classroom.
+# BATTLE BACKDROP - 960x580 campus / classroom.
 # ----------------------------------------------------------------------------
 def build_battle_bg():
     s = pygame.Surface((960, 580))
@@ -466,13 +466,13 @@ def build_battle_bg():
 
 
 # ----------------------------------------------------------------------------
-# HP BAR FRAME — 132x16 single frame; in-code fill sits in the track.
+# HP BAR FRAME - 132x16 single frame; in-code fill sits in the track.
 # Track inset documented in README: 3px border all round.
 # ----------------------------------------------------------------------------
 def build_hp():
     """A recessed groove: lit on the bottom-right, shadowed on the top-left.
 
-    The bevel runs opposite to a raised button on purpose — light falling from
+    The bevel runs opposite to a raised button on purpose - light falling from
     above hits the *far* wall of a hollow, which is what sells the track as cut
     into the panel rather than sitting on it. The 3 px inset is load-bearing:
     ``BattleUI.draw_hp_bar`` fills the track at exactly that offset.

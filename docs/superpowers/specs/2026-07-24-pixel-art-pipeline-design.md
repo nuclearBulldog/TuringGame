@@ -1,4 +1,4 @@
-# Themed Pixel-Art Pipeline & Battle/Overworld Polish — Design
+# Themed Pixel-Art Pipeline & Battle/Overworld Polish - Design
 
 **Date:** 2026-07-24
 **Status:** Approved design direction (art = themed concept sprites; backdrop = campus/classroom)
@@ -7,7 +7,7 @@
 
 Replace the procedurally-drawn generic figures (player, enemies, battle creatures)
 with a sheet-driven pixel-art pipeline, and polish the battle + overworld UI so the
-game reads as an AI-ethics game. Real art must later be a **pure PNG file-swap** — no
+game reads as an AI-ethics game. Real art must later be a **pure PNG file-swap** - no
 code edits.
 
 ## Findings
@@ -25,7 +25,7 @@ code edits.
   `"sprite"` field in `encounters.json` is the single source of truth for both the
   overworld enemy sprite and the battle creature.
 - Tests run headless (`SDL_VIDEODRIVER=dummy`) with a dummy display set, so
-  `.convert_alpha()` works — the loader still guards on `pygame.display.get_surface()`.
+  `.convert_alpha()` works - the loader still guards on `pygame.display.get_surface()`.
 - Baseline: **115 tests pass, ruff clean.**
 
 ## Components
@@ -44,8 +44,8 @@ code edits.
 |---|---|---|---|---|
 | `player.png` | 32×48 | 4×3 | 128×144 | row0 idle(2), row1 run(4), row2 jump(1) |
 | `enemies.png` | 32×44 | 4×5 | 128×220 | one row per sprite key; idle=cols 0–1, run=cols 0–3 |
-| `battle_bg.png` | — | single | 960×580 | campus/classroom backdrop |
-| `hp.png` | — | single | 132×16 | bar frame (border + empty track); fill drawn in-code |
+| `battle_bg.png` | - | single | 960×580 | campus/classroom backdrop |
+| `hp.png` | - | single | 132×16 | bar frame (border + empty track); fill drawn in-code |
 
 **Enemy row order (sprite keys):** `report_due, deepfake_classmate, hiring_filter,
 exam_proctor, study_bot`. Placeholder style = **themed concept sprites** (each enemy
@@ -94,7 +94,7 @@ verified against the loader tests before acceptance. Art direction/layout stay l
 ## Build order
 0. `systems/spritesheet.py` + loader test (parallel with 1)
 1. Gemini: placeholder PNGs + `assets/README.md` (parallel with 0)
-2. Sprite wiring (player/enemy/JSON) — depends on 0,1
-3. Battle backdrop + damage feedback — depends on 0,1
-4. HP bar, dialogue frame, move-button states — depends on 3
-5. Review + contrast/legibility pass — depends on 2,4
+2. Sprite wiring (player/enemy/JSON) - depends on 0,1
+3. Battle backdrop + damage feedback - depends on 0,1
+4. HP bar, dialogue frame, move-button states - depends on 3
+5. Review + contrast/legibility pass - depends on 2,4

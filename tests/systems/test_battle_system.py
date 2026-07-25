@@ -156,7 +156,7 @@ def test_battle_system_outcome_instant_win(mock_encounter_data):
 
 
 def test_battle_system_move_without_outcome_behaves_normally(mock_encounter_data):
-    # A move with no outcome block deals damage as usual — outcome is optional.
+    # A move with no outcome block deals damage as usual - outcome is optional.
     system = BattleSystem(encounter_id=mock_encounter_data)
     assert system.moves[0].outcome is None
     system.player_use_move(0)  # Attack, 20 damage

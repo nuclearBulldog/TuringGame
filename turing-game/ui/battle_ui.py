@@ -17,13 +17,13 @@ class BattleUI:
     PLAYER_POS = (150, 243)
     PLAYER_SIZE = (64, 96)
 
-    # Damage-feedback feel — tune these to taste.
+    # Damage-feedback feel - tune these to taste.
     FLASH_TIME = 0.18
     SHAKE_TIME = 0.30
     SHAKE_MAG = 7
 
     # Premade dialogue frame (assets/diolouge-box.png). CORNER is how many pixels
-    # of each corner stay unscaled when the frame is 9-sliced to a panel size —
+    # of each corner stay unscaled when the frame is 9-sliced to a panel size -
     # large enough to hold the rounded corner and its blue border ring.
     PANEL_CORNER = 22
 

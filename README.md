@@ -3,7 +3,7 @@
 A short narrative platformer with turn-based mechanics about the **ethical use of AI**.
 Explore the overworld, get into "battles", and see how your decisions play out.
 
-Built with Python + pygame. Runs on the desktop — see the install guide below.
+Built with Python + pygame. Runs on the desktop - see the install guide below.
 
 [![CI](https://github.com/nuclearBulldog/TuringGame/actions/workflows/ci.yml/badge.svg)](https://github.com/nuclearBulldog/TuringGame/actions/workflows/ci.yml)
 
