@@ -1,5 +1,6 @@
 import pygame
-from systems import encounter_data, sprites
+
+from turing_game.systems import encounter_data, sprites
 
 
 def test_resolve_prefers_explicit_sprite_key():

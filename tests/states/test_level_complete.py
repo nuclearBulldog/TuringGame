@@ -1,5 +1,6 @@
 import pygame
-from states.level_complete import LevelCompleteState
+
+from turing_game.states.level_complete import LevelCompleteState
 
 
 class MockManager:

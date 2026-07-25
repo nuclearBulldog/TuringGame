@@ -1,11 +1,13 @@
 import pygame
-import settings
-from entities.player import Player
+
+from turing_game import settings
+from turing_game.entities.player import Player
 
 
 class MockTile:
     def __init__(self, x, y, w, h):
         self.rect = pygame.Rect(x, y, w, h)
+
 
 def test_player_init():
     player = Player(100, 100)
@@ -14,6 +16,7 @@ def test_player_init():
     assert player.on_ground is False
     assert player.facing_right is True
     assert player.animator is not None
+
 
 def test_player_gravity(monkeypatch):
     # Mock keys so player doesn't move horizontally or jump
@@ -31,6 +34,7 @@ def test_player_gravity(monkeypatch):
     # Pos y should increase
     assert player.pos.y > 100
     assert player.on_ground is False
+
 
 def test_player_collision(monkeypatch):
     def mock_get_pressed():
@@ -57,6 +61,7 @@ def test_player_collision(monkeypatch):
     assert player.vel.y == 0
     assert player.rect.right == tile_right.rect.left
     assert player.rect.bottom == tile_bottom.rect.top
+
 
 def test_player_jump(monkeypatch):
     def mock_get_pressed():

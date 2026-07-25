@@ -1,7 +1,8 @@
 import pygame
 import pytest
-from world.level import Level
-from world.tilemap import EnemySpawn
+
+from turing_game.world.level import Level
+from turing_game.world.tilemap import EnemySpawn
 
 
 class MockTileMap:
@@ -17,7 +18,7 @@ class MockTileMap:
 
 @pytest.fixture
 def mock_tilemap(monkeypatch):
-    monkeypatch.setattr('world.level.TileMap', MockTileMap)
+    monkeypatch.setattr('turing_game.world.level.TileMap', MockTileMap)
 
 
 def test_level_builds_player_and_enemies(mock_tilemap):
@@ -49,7 +50,7 @@ def test_level_clear_encounter_is_idempotent(mock_tilemap):
 
 
 def test_level_load_random_picks_from_level_dir(monkeypatch, tmp_path, mock_tilemap):
-    import settings
+    from turing_game import settings
     monkeypatch.setattr(settings, 'LEVEL_DIR', tmp_path)
     for name in ['level1.csv', 'level2.csv', 'level3.csv']:
         (tmp_path / name).write_text('x')

@@ -8,8 +8,9 @@ world.
 import csv
 
 import pytest
-import settings
-from systems import encounter_data
+
+from turing_game import settings
+from turing_game.systems import encounter_data
 
 MARKER_TILES = {2, 3, 4, 5, 6, 7, 8}
 SOLID = {0, 1}

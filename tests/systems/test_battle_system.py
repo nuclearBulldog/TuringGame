@@ -1,12 +1,13 @@
 import json
 
 import pytest
-from systems.battle_system import BattleSystem
+
+from turing_game.systems.battle_system import BattleSystem
 
 
 @pytest.fixture
 def mock_encounter_data(tmp_path, monkeypatch):
-    import settings
+    from turing_game import settings
     # Create a temporary json file with encounter data
     encounters = {
         "test_encounter": {
@@ -29,6 +30,7 @@ def mock_encounter_data(tmp_path, monkeypatch):
 
     return "test_encounter"
 
+
 def test_battle_system_init(mock_encounter_data):
     system = BattleSystem(encounter_id=mock_encounter_data)
 
@@ -40,6 +42,7 @@ def test_battle_system_init(mock_encounter_data):
     assert system.turn == 'player'
     assert not system.battle_over
 
+
 def test_battle_system_player_attack(mock_encounter_data):
     system = BattleSystem(encounter_id=mock_encounter_data)
 
@@ -50,15 +53,17 @@ def test_battle_system_player_attack(mock_encounter_data):
     assert system.turn == 'enemy'
     assert "Attack" in system.moves_used
 
+
 def test_battle_system_player_heal(mock_encounter_data):
     system = BattleSystem(encounter_id=mock_encounter_data)
-    system.player_hp = 50 # manually reduce HP
+    system.player_hp = 50  # manually reduce HP
 
     # Use Heal (index 1, -10 damage)
     system.player_use_move(1)
 
     assert system.player_hp == 60
     assert system.turn == 'enemy'
+
 
 def test_battle_system_enemy_turn(mock_encounter_data):
     system = BattleSystem(encounter_id=mock_encounter_data)
@@ -67,6 +72,7 @@ def test_battle_system_enemy_turn(mock_encounter_data):
 
     assert system.player_hp < 100
     assert system.turn == 'player'
+
 
 def test_battle_system_win(mock_encounter_data, monkeypatch):
     system = BattleSystem(encounter_id=mock_encounter_data)
@@ -167,14 +173,14 @@ def test_battle_system_move_without_outcome_behaves_normally(mock_encounter_data
 
 
 def test_battle_system_missing_file_raises(tmp_path, monkeypatch):
-    import settings
+    from turing_game import settings
     monkeypatch.setattr(settings, "ENCOUNTER_DIR", tmp_path)  # no encounters.json present
     with pytest.raises(FileNotFoundError):
         BattleSystem(encounter_id="test_encounter")
 
 
 def test_battle_system_invalid_json_raises(tmp_path, monkeypatch):
-    import settings
+    from turing_game import settings
     monkeypatch.setattr(settings, "ENCOUNTER_DIR", tmp_path)
     (tmp_path / "encounters.json").write_text("{not valid json")
     with pytest.raises(ValueError):

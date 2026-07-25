@@ -1,18 +1,22 @@
 import pygame
-from states.battle import BattleState
+
+from turing_game.states.battle import BattleState
 
 
 class MockManager:
     def __init__(self):
         self.changed_state = None
         self.game = MockGame()
+
     def change(self, state):
         self.changed_state = state
+
 
 class MockGame:
     def __init__(self):
         self.font = pygame.font.Font(None, 20)
         self.big_font = pygame.font.Font(None, 32)
+
 
 class MockBattleSystem:
     def __init__(self):
@@ -32,6 +36,7 @@ class MockBattleSystem:
     def enemy_take_turn(self):
         self.enemy_took_turn = True
 
+
 def test_battle_state_init():
     manager = MockManager()
     system = MockBattleSystem()
@@ -39,6 +44,7 @@ def test_battle_state_init():
     state.game = MockGame()
 
     assert state.selected_move == 0
+
 
 def test_battle_state_handle_events_move_selection():
     manager = MockManager()
@@ -57,6 +63,7 @@ def test_battle_state_handle_events_move_selection():
 
     assert state.selected_move == 3
 
+
 def test_battle_state_handle_events_action():
     manager = MockManager()
     system = MockBattleSystem()
@@ -67,6 +74,7 @@ def test_battle_state_handle_events_action():
     state.handle_events([event_enter])
 
     assert system.used_move == 0
+
 
 def test_battle_state_update_enemy_turn():
     manager = MockManager()

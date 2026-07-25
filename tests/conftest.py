@@ -1,16 +1,26 @@
 import os
-import sys
 
 import pytest
-
-# Add turing-game to sys.path so we can import from it easily in tests
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../turing-game')))
 
 # Set dummy drivers for headless testing BEFORE pygame is imported
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 
-import pygame
+import pygame  # noqa: E402  (must follow the SDL driver env vars above)
+
+# Captured before mock_pygame swaps in MockFont, so tests that need genuine glyph
+# metrics can still get them. See the real_font fixture.
+_REAL_FONT = pygame.font.Font
+
+
+@pytest.fixture
+def real_font():
+    """The genuine ``pygame.font.Font``, unaffected by the MockFont patch.
+
+    Text-layout assertions need real metrics: MockFont reports 10x10 for every
+    string, which makes any wrapping or fitting check vacuous.
+    """
+    return _REAL_FONT
 
 
 @pytest.fixture(autouse=True)
@@ -22,17 +32,22 @@ def mock_pygame(monkeypatch):
     pygame.init()
 
     # Initialize a dummy display mode so convert_alpha() works
-    import settings
+    from turing_game import settings
     pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
 
     # Mock font.Font so we don't need actual font files to run tests
     class MockFont:
         def __init__(self, *args, **kwargs):
             pass
+
         def render(self, text, antialias, color, background=None):
             return pygame.Surface((10, 10), pygame.SRCALPHA)
+
         def size(self, text):
             return (10, 10)
+
+        def get_linesize(self):
+            return 12
 
     monkeypatch.setattr(pygame.font, "Font", MockFont)
     monkeypatch.setattr(pygame.font, "SysFont", MockFont)

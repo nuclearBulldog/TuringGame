@@ -11,25 +11,41 @@ dependencies = [
     "pygame-menu~=4.5.2",
 ]
 
-# The game is run directly (`cd turing-game && python main.py`), not installed
-# as a package, so no build backend or console-script entry point is declared.
-# This file documents dependencies and centralises tool configuration.
-
 [project.optional-dependencies]
 dev = [
     "pytest~=9.0.3",
     "pytest-cov~=7.1.0",
+    "ruff~=0.14.0",
 ]
+
+[project.scripts]
+turing-game = "turing_game.__main__:main"
 
 [project.urls]
 Repository = "https://github.com/nuclearBulldog/TuringGame"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["turing_game*"]
+
+[tool.setuptools.package-data]
+turing_game = ["assets/*", "assets/colours/*", "data/levels/*", "data/encounters/*"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
+# E1 (indentation) needs preview mode in ruff and is off by default; it is the
+# rule that would have caught the 7- and 11-space indents this project shipped.
+preview = true
 select = ["E", "F", "I", "W"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Puts the repo root on sys.path so `turing_game` imports from a fresh clone
+# without an editable install. Replaces the old sys.path hack in conftest.py.
+pythonpath = ["."]

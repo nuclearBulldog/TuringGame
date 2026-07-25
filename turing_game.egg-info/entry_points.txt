@@ -1,0 +1,2 @@
+[console_scripts]
+turing-game = turing_game.__main__:main

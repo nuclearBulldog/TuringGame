@@ -1,12 +1,13 @@
 import json
 
 import pytest
-from systems import encounter_data
+
+from turing_game.systems import encounter_data
 
 
 @pytest.fixture
 def encounter_file(tmp_path, monkeypatch):
-    import settings
+    from turing_game import settings
     database = {
         "report_due": {
             "spawn_tile": 3,
@@ -44,14 +45,14 @@ def test_load_encounters_returns_database(encounter_file):
 
 
 def test_load_encounters_missing_file_raises(tmp_path, monkeypatch):
-    import settings
+    from turing_game import settings
     monkeypatch.setattr(settings, "ENCOUNTER_DIR", tmp_path)
     with pytest.raises(FileNotFoundError):
         encounter_data.load_encounters()
 
 
 def test_load_encounters_invalid_json_raises(tmp_path, monkeypatch):
-    import settings
+    from turing_game import settings
     monkeypatch.setattr(settings, "ENCOUNTER_DIR", tmp_path)
     (tmp_path / "encounters.json").write_text("{not valid json")
     with pytest.raises(ValueError):

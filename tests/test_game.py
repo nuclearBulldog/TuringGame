@@ -1,7 +1,8 @@
 import asyncio
 
 import pygame
-from game import Game
+
+from turing_game.game import Game
 
 
 def test_game_init(monkeypatch):
@@ -13,6 +14,7 @@ def test_game_init(monkeypatch):
     assert game.running is True
     assert game.state_manager is not None
     assert game.state_manager.state.__class__.__name__ == "MainMenu"
+
 
 def test_game_quit_event(monkeypatch):
     monkeypatch.setattr(pygame.display, "set_mode", lambda size: pygame.Surface(size))

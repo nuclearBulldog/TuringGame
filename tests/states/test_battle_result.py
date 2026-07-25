@@ -1,17 +1,21 @@
 import pygame
-from states.battle_result import BattleResultState
+
+from turing_game.states.battle_result import BattleResultState
 
 
 class MockManager:
     def __init__(self):
         self.changed_state = None
         self.game = MockGame()
+
     def change(self, state):
         self.changed_state = state
+
 
 class MockGame:
     def __init__(self):
         self.font = pygame.font.Font(None, 20)
+
 
 class MockBattleSystem:
     def __init__(self, won=True):
@@ -27,6 +31,7 @@ class FakeOverworld:
     def resolve_won_battle(self, system):
         self.resolved = system
 
+
 def test_battle_result_init_win():
     # FR4: The system should display a end screen indicating if the user won or lost
     manager = MockManager()
@@ -38,6 +43,7 @@ def test_battle_result_init_win():
     # Verify title text includes "Win"
     assert any("Win" in w.get_title() for w in state.menu.get_widgets() if hasattr(w, 'get_title'))
 
+
 def test_battle_result_init_loss():
     # FR4: The system should display a end screen indicating if the user won or lost
     manager = MockManager()
@@ -48,6 +54,7 @@ def test_battle_result_init_loss():
     assert state.win is False
     # Verify title text includes "Lost"
     assert any("Lost" in w.get_title() for w in state.menu.get_widgets() if hasattr(w, 'get_title'))
+
 
 def test_battle_result_details():
     # FR5: The system should store the players decisions, in order to display feedback
@@ -64,6 +71,7 @@ def test_battle_result_details():
     assert state.show_details is False
     state.toggle_details()
     assert state.show_details is True
+
 
 def test_battle_result_buttons():
     manager = MockManager()

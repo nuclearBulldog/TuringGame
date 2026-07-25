@@ -1,12 +1,14 @@
 import pygame
-import settings
-from engine.camera import Camera
+
+from turing_game import settings
+from turing_game.engine.camera import Camera
 
 
 def test_camera_init():
     cam = Camera()
     assert cam.offset.x == 0
     assert cam.offset.y == 0
+
 
 def test_camera_update(monkeypatch):
     cam = Camera()
@@ -24,6 +26,7 @@ def test_camera_update(monkeypatch):
 
     assert cam.offset.x == 25
     assert cam.offset.y == 25
+
 
 def test_camera_apply():
     cam = Camera()

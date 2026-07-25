@@ -1,14 +1,15 @@
 import json
 
 import pytest
-from world.tilemap import EnemySpawn, TileMap
+
+from turing_game.world.tilemap import EnemySpawn, TileMap
 
 
 @pytest.fixture(autouse=True)
 def hermetic_encounters(tmp_path, monkeypatch):
     # TileMap resolves enemy spawn tiles through the encounter database, so give
     # every test a small, controlled one instead of the shipped file.
-    import settings
+    from turing_game import settings
     database = {
         "report_due": {
             "spawn_tile": 3,

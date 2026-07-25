@@ -1,10 +1,26 @@
 import pygame
-from systems.battle_system import BattleSystem
-from ui.battle_ui import BattleUI
+import pytest
+
+from turing_game import settings
+from turing_game.systems import encounter_data
+from turing_game.systems.battle_system import BattleSystem
+from turing_game.ui.battle_ui import BattleUI
 
 
 def _ui():
     return BattleUI(pygame.font.Font(None, 20), pygame.font.Font(None, 32))
+
+
+def _every_battle_message():
+    """Every string the message box can be asked to render, from real game data."""
+    for encounter in encounter_data.load_encounters().values():
+        yield encounter['intro_message']
+        for move in encounter['moves']:
+            if move.get('outcome'):
+                yield move['outcome']['message']
+            else:
+                yield (f"You decided to {move['name']}, {move['description']}... "
+                       f"dealing {abs(move['damage'])} damage!")
 
 
 def test_battle_system_exposes_default_sprite_key():
@@ -47,3 +63,24 @@ def test_update_is_safe_without_hp_attributes():
 
     ui.update(0.016, Bare())                      # no enemy_hp/player_hp -> no crash
     assert ui._enemy_flash == 0.0
+
+
+@pytest.mark.parametrize('show_hint', [True, False])
+def test_no_battle_message_is_truncated(real_font, show_hint):
+    """Every line of every message must survive the fit, in both hint states.
+
+    Regression guard: the box used to hard-slice to two big_font rows, which cut
+    the tail off 20 of the 25 messages - and the tail is where each scenario's
+    consequence lands. Needs real font metrics, hence ``real_font``.
+    """
+    ui = BattleUI(real_font(settings.BASE_FONT, 20), real_font(settings.BASE_FONT, 32))
+    screen = pygame.Surface((settings.WIDTH, settings.HEIGHT))
+    box = ui.message_box_rect(screen)
+    max_width, _, max_height = ui.message_text_budget(box, show_hint)
+
+    for message in _every_battle_message():
+        font, lines = ui._fit_message(message, max_width, max_height)
+        assert ' '.join(lines).split() == message.split(), f'truncated: {message!r}'
+        assert len(lines) * font.get_linesize() <= max_height, f'overflows box: {message!r}'
+        for line in lines:
+            assert font.size(line)[0] <= max_width, f'overflows width: {line!r}'
