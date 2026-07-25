@@ -22,12 +22,29 @@ class BattleUI:
     SHAKE_TIME = 0.30
     SHAKE_MAG = 7
 
+    # Premade dialogue frame (assets/diolouge-box.png). CORNER is how many pixels
+    # of each corner stay unscaled when the frame is 9-sliced to a panel size —
+    # large enough to hold the rounded corner and its blue border ring.
+    PANEL_CORNER = 22
+
     def __init__(self, font, big_font):
         self.font = font
         self.big_font = big_font
 
         self.bg = spritesheet.load_sheet(sprites.BATTLE_BG)
         self.hp_frame = spritesheet.load_sheet(sprites.HP_FRAME)
+
+        # Crop the frame to its opaque box so the transparent margin around the
+        # authored art doesn't inset every panel.
+        frame = spritesheet.load_sheet(settings.ASSETS_DIR / 'diolouge-box.png')
+        self.panel_frame = frame.subsurface(frame.get_bounding_rect()).copy()
+        self._panel_cache = {}
+
+        # Fixed-size battle chrome, authored at its exact on-screen dimensions and
+        # blitted 1:1 (no scaling, so no 9-slice needed).
+        self.bottom_bar = spritesheet.load_sheet(settings.ASSETS_DIR / 'bottom-bar.png')
+        self.move_box = spritesheet.load_sheet(settings.ASSETS_DIR / 'move-box.png')
+        self.move_selected = spritesheet.load_sheet(settings.ASSETS_DIR / 'move-selected.png')
 
         self._player_img = None
         self._enemy_img = None
@@ -131,12 +148,47 @@ class BattleUI:
             pygame.draw.rect(screen, colour, (x + inset, y + inset, fill_w, h - inset * 2))
 
     # -- windows ------------------------------------------------------------
+    def _nine_slice(self, size):
+        """Stretch ``self.panel_frame`` to ``size`` keeping its corners intact.
+
+        A frame scaled with a plain ``transform.scale`` smears its rounded corners
+        into ovals; nine-slicing pins each corner at native size and stretches
+        only the four edges and the middle. Results are cached per size because a
+        battle only ever asks for a handful of distinct panel sizes.
+        """
+        w, h = size
+        if (w, h) in self._panel_cache:
+            return self._panel_cache[(w, h)]
+
+        src = self.panel_frame
+        sw, sh = src.get_size()
+        c = min(self.PANEL_CORNER, sw // 2, sh // 2, w // 2, h // 2)
+        out = pygame.Surface((w, h), pygame.SRCALPHA)
+
+        # Source and destination column edges, then the same for rows. Each cell
+        # is one subsurface scaled from its source span to its dest span.
+        xs_src = (0, c, sw - c, sw)
+        ys_src = (0, c, sh - c, sh)
+        xs_dst = (0, c, w - c, w)
+        ys_dst = (0, c, h - c, h)
+        for r in range(3):
+            for col in range(3):
+                sx0, sx1 = xs_src[col], xs_src[col + 1]
+                sy0, sy1 = ys_src[r], ys_src[r + 1]
+                dx0, dx1 = xs_dst[col], xs_dst[col + 1]
+                dy0, dy1 = ys_dst[r], ys_dst[r + 1]
+                if sx1 <= sx0 or sy1 <= sy0 or dx1 <= dx0 or dy1 <= dy0:
+                    continue
+                piece = src.subsurface(pygame.Rect(sx0, sy0, sx1 - sx0, sy1 - sy0))
+                out.blit(pygame.transform.scale(piece, (dx1 - dx0, dy1 - dy0)),
+                         (dx0, dy0))
+
+        self._panel_cache[(w, h)] = out
+        return out
+
     def _draw_panel(self, screen, rect):
-        """Draws a classic RPG double-frame window overlay."""
-        pygame.draw.rect(screen, settings.UI_FRAME, rect)
-        inner_rect = rect.inflate(-6, -6)
-        pygame.draw.rect(screen, settings.UI_PANEL, inner_rect)
-        pygame.draw.rect(screen, settings.UI_PANEL_EDGE, inner_rect, width=2)
+        """Blit the premade window frame, 9-sliced to this panel's size."""
+        screen.blit(self._nine_slice(rect.size), rect.topleft)
 
     def _draw_enemy_panel(self, screen, battle):
         panel = pygame.Rect(520, 20, 300, 90)
@@ -197,9 +249,8 @@ class BattleUI:
             screen.blit(hint_surf, (box.x + 15, box.bottom - 24))
 
     def _draw_bottom_ui(self, screen):
-        pygame.draw.rect(screen, settings.UI_PANEL, (0, 420, settings.WIDTH, 120))
-        pygame.draw.line(screen, settings.UI_FRAME, (0, 420), (settings.WIDTH, 420), 4)
-        pygame.draw.line(screen, settings.UI_FRAME, (520, 420), (520, 540), 4)
+        # 960x160 bar authored to sit flush against the bottom edge (y 420->580).
+        screen.blit(self.bottom_bar, (0, 420))
 
     def _draw_moves(self, screen, battle_system, selected_index):
         screen_w = screen.get_width()
@@ -232,20 +283,12 @@ class BattleUI:
                 and not battle_system.battle_over
             )
 
-            inner = rect.inflate(-4, -4)
-            if selected:
-                pygame.draw.rect(screen, settings.MOVE_SELECT_EDGE, rect)
-                pygame.draw.rect(screen, settings.MOVE_SELECT_FILL, inner)
-                pygame.draw.rect(screen, settings.MOVE_SELECT_EDGE, inner, width=3)
-                # a small pointer so the choice is unmistakable
-                pygame.draw.polygon(screen, settings.UI_FRAME, [
-                    (rect.x + 6, rect.centery - 5),
-                    (rect.x + 6, rect.centery + 5),
-                    (rect.x + 13, rect.centery),
-                ])
-            else:
-                pygame.draw.rect(screen, settings.UI_FRAME, rect)
-                pygame.draw.rect(screen, settings.MOVE_IDLE_FILL, inner)
+            # Premade button art, authored at this exact rect size (209x52). The
+            # selected variant has its pointer arrow drawn in, so no overlay here.
+            art = self.move_selected if selected else self.move_box
+            if art.get_size() != rect.size:
+                art = pygame.transform.scale(art, rect.size)
+            screen.blit(art, rect.topleft)
 
             chosen_font = self.big_font
             text_width = chosen_font.size(move.name)[0]
