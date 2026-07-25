@@ -190,40 +190,57 @@ class BattleUI:
         """Blit the premade window frame, 9-sliced to this panel's size."""
         screen.blit(self._nine_slice(rect.size), rect.topleft)
 
+    # Keeps panel content clear of the dialogue frame's ~9px border.
+    PANEL_PAD = 16
+
+    def _name_font(self, text, max_width):
+        """Biggest of the two fonts that fits ``text`` in ``max_width``.
+
+        A framed panel has a hard right border, so a long enemy name in big_font
+        (e.g. "Deepfake in the Group Chat") would run through it; drop to the
+        small font in that case rather than clip.
+        """
+        return self.big_font if self.big_font.size(text)[0] <= max_width else self.font
+
+    def _draw_hp_number(self, screen, text, right, centery):
+        """HP readout, right-aligned and vertically centred on the bar row.
+
+        Sitting beside the bar rather than below it keeps the number inside the
+        panel's framed border on the short enemy panel, and both combatants use
+        big_font here so the two readouts match.
+        """
+        surf = self.big_font.render(text, False, settings.UI_TEXT)
+        screen.blit(surf, surf.get_rect(midright=(right, centery)))
+
     def _draw_enemy_panel(self, screen, battle):
         panel = pygame.Rect(520, 20, 300, 90)
         self._draw_panel(screen, panel)
 
-        padding = 14
-        screen.blit(self.big_font.render(battle.enemy_name, False, settings.UI_TEXT),
-                    (panel.x + padding, panel.y + padding))
+        pad = self.PANEL_PAD
+        name_font = self._name_font(battle.enemy_name, panel.width - pad * 2)
+        screen.blit(name_font.render(battle.enemy_name, False, settings.UI_TEXT),
+                    (panel.x + pad, panel.y + 12))
 
-        hp_x = panel.x + padding
-        hp_y = panel.y + 42
-        self.draw_hp_bar(screen, hp_x, hp_y, 170, 16, battle.enemy_hp, battle.enemy_max_hp)
-
-        hp_text = f"{battle.enemy_hp}/{battle.enemy_max_hp}"
-        text_surface = self.big_font.render(hp_text, False, settings.UI_TEXT)
-        text_rect = text_surface.get_rect(right=panel.right - padding, top=hp_y + 20)
-        screen.blit(text_surface, text_rect)
+        bar_w, bar_h = 168, 16
+        hp_x, hp_y = panel.x + pad, panel.y + 56
+        self.draw_hp_bar(screen, hp_x, hp_y, bar_w, bar_h, battle.enemy_hp, battle.enemy_max_hp)
+        self._draw_hp_number(screen, f"{battle.enemy_hp}/{battle.enemy_max_hp}",
+                             panel.right - pad, hp_y + bar_h // 2)
 
     def _draw_player_panel(self, screen, battle):
         panel = pygame.Rect(400, 290, 330, 110)
         self._draw_panel(screen, panel)
 
-        padding = 14
-        screen.blit(self.big_font.render(battle.player_name, False, settings.UI_TEXT),
-                    (panel.x + padding, panel.y + padding))
+        pad = self.PANEL_PAD
+        name_font = self._name_font(battle.player_name, panel.width - pad * 2)
+        screen.blit(name_font.render(battle.player_name, False, settings.UI_TEXT),
+                    (panel.x + pad, panel.y + 14))
 
-        hp_y = panel.y + 52
-        self.draw_hp_bar(
-            screen, panel.x + padding, hp_y, 210, 18, battle.player_hp, battle.player_max_hp
-        )
-
-        hp_text = f"{battle.player_hp}/{battle.player_max_hp}"
-        txt = self.font.render(hp_text, False, settings.UI_TEXT)
-        txt_rect = txt.get_rect(right=panel.right - padding, top=hp_y + 24)
-        screen.blit(txt, txt_rect)
+        bar_w, bar_h = 200, 18
+        hp_x, hp_y = panel.x + pad, panel.y + 62
+        self.draw_hp_bar(screen, hp_x, hp_y, bar_w, bar_h, battle.player_hp, battle.player_max_hp)
+        self._draw_hp_number(screen, f"{battle.player_hp}/{battle.player_max_hp}",
+                             panel.right - pad, hp_y + bar_h // 2)
 
     def _draw_message_box(self, screen, message, show_hint=True):
         screen_w = screen.get_width()
