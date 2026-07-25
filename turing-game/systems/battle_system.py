@@ -31,6 +31,9 @@ class BattleSystem:
         self.player_max_hp = 100
 
         self.enemy_name = encounter_data['enemy_name']
+        # Kept so the battle scene can fall back on it when the sprite key is
+        # unknown, matching how the overworld enemy resolves its art.
+        self.encounter_id = encounter_id
         # Display-only: which enemy sprite the battle scene blits. Defaults so
         # encounters without art (and the test fixtures) still construct.
         self.sprite_key = encounter_data.get('sprite', 'report_due')

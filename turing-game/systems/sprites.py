@@ -22,7 +22,7 @@ PLAYER_LAYOUT = {'idle': (0, 0, 2), 'run': (1, 0, 4), 'jump': (2, 0, 1)}
 ENEMY_ROWS = {
     'report_due': 0,
     'deepfake_classmate': 1,
-    'hiring_filter': 2,
+    'misinformation': 2,
     'exam_proctor': 3,
     'study_bot': 4,
 }
@@ -60,6 +60,12 @@ def player_battle_frame():
     return load_player_states()['idle'][0]
 
 
-def enemy_battle_frame(sprite_key):
-    """Single idle frame used for the enemy creature in battle."""
-    return load_enemy_states(resolve_enemy_sprite(sprite_key))['idle'][0]
+def enemy_battle_frame(sprite_key, encounter_id=None):
+    """Single idle frame used for the enemy creature in battle.
+
+    Takes ``encounter_id`` so the battle scene degrades a bad sprite key the same
+    way the overworld enemy does: a typo'd ``sprite`` that happens to match an
+    encounter id still shows the right creature instead of silently defaulting.
+    """
+    return load_enemy_states(
+        resolve_enemy_sprite(sprite_key, encounter_id))['idle'][0]

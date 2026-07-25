@@ -84,8 +84,9 @@ class BattleUI:
                 sprites.player_battle_frame(), self.PLAYER_SIZE)
         if key != self._enemy_key:
             self._enemy_key = key
+            encounter_id = getattr(battle_system, 'encounter_id', None)
             self._enemy_img = pygame.transform.scale(
-                sprites.enemy_battle_frame(key), self.ENEMY_SIZE)
+                sprites.enemy_battle_frame(key, encounter_id), self.ENEMY_SIZE)
 
     def _draw_creature(self, screen, image, pos, flash, shake):
         dx = self._shake_offset(shake)

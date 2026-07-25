@@ -51,56 +51,151 @@ def px(surf, x, y, name, w=1, h=1):
     surf.fill(col(name), (x, y, w, h))
 
 
+# Shading ramps: dark -> light runs that already exist inside dawnbringer-32.
+# Picking neighbours from one ramp keeps highlights and shadows in the palette's
+# own hue family instead of drifting to an arbitrary lighter RGB.
+RAMPS = {
+    "denim": ("ink", "indigo", "blue", "peri", "sky"),
+    "flesh": ("brown", "mbrown", "tan", "skin"),
+    "steel": ("ink", "dgray", "mgray", "gray", "ltgray", "pale"),
+    "paper": ("gray", "ltgray", "pale", "white"),
+    "alarm": ("dpurple", "dred", "red", "pink"),
+    "screen": ("indigo", "blue", "sky", "cyan"),
+    "foliage": ("olive", "dgreen", "green", "lime"),
+    "amber": ("brown", "dgold", "orange", "yellow"),
+}
+
+
+def shade(ramp, base, step):
+    """Step along a ramp from ``base``, clamped at both ends.
+
+    ``step`` is +1 for a highlight, -1 for a shadow. Clamping means a caller can
+    ask for a highlight on an already-lightest colour without special-casing.
+    """
+    names = RAMPS[ramp]
+    i = names.index(base)
+    return names[max(0, min(len(names) - 1, i + step))]
+
+
+def box(surf, x, y, w, h, ramp, base):
+    """A filled rect with a lit top edge and a shadowed bottom edge.
+
+    Three rows of value is the cheapest way to make a flat rectangle read as a
+    solid object; without it sprites dissolve when scaled up in the battle scene.
+    """
+    px(surf, x, y, base, w, h)
+    px(surf, x, y, shade(ramp, base, 1), w, 1)
+    if h > 2:
+        px(surf, x, y + h - 1, shade(ramp, base, -1), w, 1)
+
+
+def outline(surf, name="ink"):
+    """Wrap a frame in a 1 px contour derived from its own alpha channel.
+
+    Rather than hand-drawing a border per shape, this reads the silhouette back
+    off the surface and stamps a dark copy one pixel out in each direction. Any
+    sprite gets a consistent contour for free, and it keeps working when the
+    shapes underneath change. Returns a new surface; the original is untouched.
+    """
+    silhouette = pygame.mask.from_surface(surf).to_surface(
+        setcolor=col(name), unsetcolor=(0, 0, 0, 0))
+    ringed = pygame.Surface(surf.get_size(), pygame.SRCALPHA)
+    for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+        ringed.blit(silhouette, (dx, dy))
+    ringed.blit(surf, (0, 0))
+    return ringed
+
+
 # ----------------------------------------------------------------------------
 # PLAYER  — a student in a hoodie. Frame 32x48, 4 cols x 3 rows.
 # row0 idle(2), row1 run(4), row2 jump(1)
 # ----------------------------------------------------------------------------
+# A 4-frame run: contact, passing-low, contact (mirrored), passing-high. Each
+# entry is (body lift, front-leg reach, back-leg reach) in pixels; the arms swing
+# opposite the legs so the pose reads as a stride rather than a hop.
+RUN_CYCLE = [
+    (0, 4, -3),
+    (-1, 1, 1),
+    (0, -3, 4),
+    (1, 1, 1),
+]
+
+
+def draw_leg(s, x, y, reach, shoe, tone="indigo"):
+    """One leg planted at ``x``; ``reach`` swings the foot fore (+) or aft (-).
+
+    ``tone`` carries the depth cue: the far leg is drawn a step darker down the
+    denim ramp, which is what keeps two adjacent limbs from reading as one wide
+    trouser block once the contour merges them.
+    """
+    thigh = 8 - abs(reach) // 3
+    shin = 5 - abs(reach) // 4
+    px(s, x, y, tone, 4, thigh)
+    foot_x = x + reach
+    px(s, foot_x, y + thigh, tone, 4, shin)
+    px(s, foot_x - 1, y + thigh + shin, shoe, 6, 3)
+
+
 def draw_student(step, jump=False):
-    """step drives leg/arm swing; returns a 32x48 SRCALPHA frame."""
+    """A student in a hoodie with a backpack strap; 32x48 SRCALPHA frame.
+
+    ``step`` indexes RUN_CYCLE. The same routine serves idle (steps 0 and 3, which
+    read as a gentle weight shift) and run (all four), so the character can never
+    drift out of proportion between its two animation states.
+    """
     s = pygame.Surface((32, 48), pygame.SRCALPHA)
-    bob = 1 if step in (1, 3) else 0
-    top = 6 + bob
+    lift, front, back = RUN_CYCLE[step]
+    top = 7 + lift
 
-    # hair + head
-    px(s, 11, top - 2, "ink", 10, 4)          # hair
-    px(s, 12, top + 1, "skin", 8, 7)          # face
-    px(s, 14, top + 4, "ink", 1, 1)           # eye
-    px(s, 18, top + 4, "ink", 1, 1)           # eye
-    # hoodie torso
-    px(s, 9, top + 8, "blue", 14, 14)
-    px(s, 9, top + 8, "indigo", 14, 2)        # hood shoulders shade
-    px(s, 15, top + 8, "indigo", 2, 14)       # zip
-    # backpack strap
-    px(s, 11, top + 9, "orange", 2, 12)
+    # head — hair sits proud of the face so the silhouette has a readable crown
+    px(s, 11, top, "ink", 10, 5)
+    px(s, 10, top + 2, "ink", 1, 3)
+    px(s, 12, top + 4, "skin", 8, 7)
+    px(s, 12, top + 4, "tan", 8, 1)                  # brow in shadow under hair
+    px(s, 19, top + 5, "tan", 1, 6)                  # cheek turns away from light
+    px(s, 17, top + 7, "ink", 2, 2)                  # facing right: one eye reads
+    px(s, 14, top + 7, "ink", 1, 2)
+    px(s, 16, top + 10, "mbrown", 3, 1)              # mouth
 
+    torso_y = top + 11
     if jump:
-        # arms up, legs tucked
-        px(s, 6, top + 6, "blue", 3, 6)
-        px(s, 23, top + 6, "blue", 3, 6)
-        px(s, 11, top + 22, "indigo", 5, 8)
-        px(s, 16, top + 22, "indigo", 5, 8)
-        px(s, 11, top + 29, "orange", 5, 3)   # shoes
-        px(s, 16, top + 29, "mbrown", 5, 3)
-        pygame.draw.rect(s, col("ink"), (9, top + 8, 14, 14), 1)
-        return s
+        # tucked: arms up, knees drawn in, whole body a compact diamond
+        box(s, 10, torso_y, 13, 13, "denim", "blue")
+        px(s, 10, torso_y, "indigo", 13, 3)          # hood bunches at the shoulders
+        px(s, 15, torso_y + 3, "indigo", 2, 10)      # zip
+        px(s, 12, torso_y + 1, "orange", 2, 11)      # backpack strap
+        px(s, 7, torso_y - 4, "blue", 3, 8)          # arms thrown up
+        px(s, 23, torso_y - 4, "blue", 3, 8)
+        px(s, 11, torso_y + 13, "indigo", 5, 7)
+        px(s, 17, torso_y + 13, "indigo", 5, 7)
+        px(s, 10, torso_y + 20, "orange", 6, 3)
+        px(s, 17, torso_y + 20, "orange", 6, 3)
+        return outline(s)
 
-    # arms
-    swing = {0: 0, 1: 2, 2: 0, 3: -2}[step]
-    px(s, 6, top + 9 + swing, "blue", 3, 9)
-    px(s, 23, top + 9 - swing, "blue", 3, 9)
-    # legs with running swing
-    la = {0: 0, 1: 3, 2: 0, 3: -3}[step]
-    px(s, 11, top + 22, "indigo", 4, 14 - abs(la))
-    px(s, 17, top + 22, "indigo", 4, 14 - abs(la))
-    px(s, 11 - (la if la > 0 else 0), top + 34 - abs(la), "orange", 5, 3)
-    px(s, 17 + (-la if la < 0 else 0), top + 34 - abs(la), "mbrown", 5, 3)
-    pygame.draw.rect(s, col("ink"), (9, top + 8, 14, 14), 1)
-    return s
+    box(s, 10, torso_y, 13, 14, "denim", "blue")
+    px(s, 10, torso_y, "indigo", 13, 3)              # hood bunches at the shoulders
+    px(s, 15, torso_y + 3, "indigo", 2, 11)          # zip
+    px(s, 12, torso_y + 1, "orange", 2, 12)          # backpack strap
+    px(s, 21, torso_y + 4, "peri", 1, 8)             # lit edge, light from the right
+
+    # arms counter-swing against the legs
+    px(s, 7, torso_y + 3 - back, "blue", 3, 9)
+    px(s, 23, torso_y + 3 - front, "blue", 3, 9)
+    px(s, 7, torso_y + 11 - back, "skin", 3, 2)      # hands
+    px(s, 23, torso_y + 11 - front, "skin", 3, 2)
+
+    legs_y = torso_y + 14
+    draw_leg(s, 11, legs_y, back, "brown", tone=shade("denim", "indigo", -1))
+    draw_leg(s, 17, legs_y, front, "orange")
+    px(s, 20, legs_y, "peri", 1, 6)                  # lit edge on the near leg
+    return outline(s)
 
 
 def build_player():
     sheet = pygame.Surface((128, 144), pygame.SRCALPHA)
-    idle = [draw_student(0), draw_student(1)]
+    # Idle borrows the two passing poses: feet together, differing only in body
+    # lift, so standing still reads as breathing instead of a half-frozen stride.
+    idle = [draw_student(3), draw_student(1)]
     run = [draw_student(0), draw_student(1), draw_student(2), draw_student(3)]
     jump = [draw_student(0, jump=True)]
     for i, f in enumerate(idle):
@@ -121,122 +216,204 @@ def frame_surface():
 
 
 def enemy_report_due(step):
-    """A looming stack of paper with a red DUE band + ticking clock."""
+    """A leaning tower of paper with a red deadline band and a ticking clock."""
     s = frame_surface()
     wob = {0: 0, 1: 1, 2: 0, 3: -1}[step]
-    # paper stack
-    for i, y in enumerate(range(40, 10, -5)):
-        w = 22 - i
-        x = 16 - w // 2 + (wob if i % 2 else 0)
-        px(s, x, y, "white", w, 5)
-        px(s, x, y + 4, "ltgray", w, 1)
-        pygame.draw.rect(s, col("gray"), (x, y, w, 5), 1)
-    # red DUE band
-    px(s, 6, 22, "red", 20, 5)
-    px(s, 8, 24, "white", 2, 1)
-    px(s, 12, 24, "white", 2, 1)
-    px(s, 16, 24, "white", 2, 1)
-    px(s, 20, 24, "white", 2, 1)
-    # clock on top
-    px(s, 12, 4 + wob, "yellow", 8, 8)
-    pygame.draw.rect(s, col("ink"), (12, 4 + wob, 8, 8), 1)
-    px(s, 16, 6 + wob, "ink", 1, 3)
-    px(s, 16, 8 + wob, "ink", 3, 1)
-    return s
+    # Sheets stack bottom-up and each one leans a little further, so the tower
+    # looks like it is about to go over rather than sitting neatly squared.
+    for i, y in enumerate(range(38, 12, -5)):
+        w = 24 - i * 2
+        x = 16 - w // 2 + (wob if i % 2 else -wob)
+        box(s, x, y, w, 5, "paper", "pale")
+        px(s, x, y + 4, "gray", w, 1)            # shadow cast on the sheet below
+    # deadline band wrapping the stack
+    px(s, 4, 24, "red", 24, 6)
+    px(s, 4, 24, "pink", 24, 1)
+    px(s, 4, 29, "dred", 24, 1)
+    for tick in range(6, 28, 5):                 # stamped lettering, unreadable
+        px(s, tick, 26, "white", 3, 2)
+    # clock perched on top, hands sweeping round the frames
+    hand = [(0, -3), (2, -2), (3, 0), (2, 2)][step]
+    px(s, 11, 2 + wob, "yellow", 10, 10)
+    px(s, 11, 2 + wob, "white", 10, 1)
+    px(s, 11, 11 + wob, "dgold", 10, 1)
+    px(s, 15, 6 + wob, "ink", 2, 2)              # pivot
+    px(s, 16 + hand[0], 7 + wob + hand[1], "ink", 1, 2)
+    px(s, 10, 1 + wob, "dgold", 2, 2)            # bells
+    px(s, 20, 1 + wob, "dgold", 2, 2)
+    return outline(s)
+
+
+def draw_classmate_base(s, step):
+    """The believable half: an ordinary classmate, drawn straight.
+
+    Everything here is deliberately unremarkable — a face the player would scroll
+    past. The sprite only works if this part is convincing first, because the
+    horror of a deepfake is that it looks fine until you notice what is wrong.
+    """
+    px(s, 8, 6, "brown", 16, 6)                  # hair
+    px(s, 8, 6, "mbrown", 16, 2)
+    px(s, 9, 10, "skin", 14, 18)                 # face
+    px(s, 9, 10, "tan", 14, 1)                   # brow shadow under the fringe
+    px(s, 21, 12, "tan", 2, 14)                  # cheek turning from the light
+    px(s, 12, 15, "white", 3, 3)                 # eyes
+    px(s, 18, 15, "white", 3, 3)
+    px(s, 13, 16, "ink", 2, 2)
+    px(s, 19, 16, "ink", 2, 2)
+    px(s, 14, 23, "dred", 5, 2)                  # mouth
+    px(s, 15, 28, "tan", 6, 3)                   # neck
+    box(s, 6, 30, 20, 12, "denim", "indigo")     # shoulders
+    px(s, 14, 30, "blue", 4, 12)                 # collar
+
+
+def deepfake_tell(s, step):
+    """Draw whatever marks this face as synthetic. One frame of a 4-frame loop.
+
+    `s` is a 32x44 SRCALPHA surface with `draw_classmate_base` already drawn on
+    it, so this only adds the tell on top. `step` is 0-3; make the tell change
+    across those four frames or the sprite will sit dead still in battle.
+
+    Available helpers:
+        px(s, x, y, "colour", w, h)   filled rect, colour is a dawnbringer name
+        box(s, x, y, w, h, ramp, base)   filled rect with lit top / dark bottom
+        shade(ramp, base, +1 or -1)   step along a ramp for a highlight/shadow
+
+    Useful landmarks in the base: face spans x 9-22, y 10-27; eyes sit at y 15-17;
+    the mouth is at y 23; shoulders start at y 30.
+
+    TODO(caleb): implement the tell. See the notes in the chat for the trade-off
+    between a glitch read, a seam/mask read, and an uncanny-symmetry read.
+    """
+    return
 
 
 def enemy_deepfake(step):
-    """A glitching human face, RGB-split scanlines."""
+    """A classmate whose face is not theirs."""
     s = frame_surface()
-    off = {0: 0, 1: 2, 2: -2, 3: 1}[step]
-    px(s, 9, 8, "skin", 14, 20)             # face
-    px(s, 11, 4, "ink", 10, 5)              # hair
-    px(s, 12, 14, "white", 3, 3)            # eyes
-    px(s, 18, 14, "white", 3, 3)
-    px(s, 13, 15, "ink", 1, 1)
-    px(s, 19, 15, "ink", 1, 1)
-    px(s, 13, 22, "dred", 6, 1)             # mouth
-    # glitch bands (RGB split)
-    px(s, 9 + off, 12, "cyan", 14, 2)
-    px(s, 9 - off, 18, "pink", 14, 2)
-    px(s, 9 + off, 24, "sky", 14, 1)
-    # neck/shoulders
-    px(s, 8, 28, "indigo", 16, 12)
-    return s
+    draw_classmate_base(s, step)
+    deepfake_tell(s, step)
+    return outline(s)
 
 
-def enemy_hiring_filter(step):
-    """A funnel/sieve rejecting little applicant dots out the side."""
+def enemy_misinformation(step):
+    """A confident chatbot answer whose 'verified' badge keeps flipping to false.
+
+    The silhouette reads as a reply bubble; the tell is instability. On alternate
+    frames a citation line glows red (a fact it made up) and the corner badge
+    flips from a green tick to a red cross — the answer looks sourced and certain
+    and is neither. That flicker is the whole point of the sprite.
+    """
     s = frame_surface()
-    # funnel body
-    pygame.draw.polygon(s, col("mgray"), [(4, 8), (28, 8), (20, 26), (12, 26)])
-    pygame.draw.polygon(s, col("ink"), [(4, 8), (28, 8), (20, 26), (12, 26)], 1)
-    px(s, 14, 26, "mgray", 4, 12)          # spout
-    px(s, 8, 11, "dgray", 16, 2)           # sieve slot
-    # applicant dots dropping in
-    for i in range(4):
-        px(s, 8 + i * 4, 3 + ((step + i) % 3), "sky", 2, 2)
-    # rejected dot flung to the side (red)
-    rx = {0: 24, 1: 26, 2: 28, 3: 25}[step]
-    px(s, rx, 18, "red", 2, 2)
-    # accepted dot from spout
-    px(s, 15, 38 + (step % 2), "lime", 2, 2)
-    return s
+    lie = step % 2 == 0
+
+    # reply bubble with a tail pointing down toward the "speaker"
+    pygame.draw.rect(s, col("pale"), (3, 3, 26, 27), border_radius=5)
+    px(s, 5, 4, "white", 22, 2)                   # top edge catches the light
+    px(s, 5, 27, "ltgray", 22, 2)                 # base falls into shadow
+    pygame.draw.polygon(s, col("pale"), [(8, 28), (16, 28), (9, 37)])
+    px(s, 9, 28, "ltgray", 2, 7)
+
+    # lines of answer text; the second is a fabricated claim that flickers red
+    px(s, 7, 9, "slate", 18, 2)
+    px(s, 7, 13, "red" if lie else "gray", 16, 2)
+    px(s, 7, 13, "pink" if lie else "ltgray", 16, 1)
+    px(s, 7, 17, "slate", 20, 2)
+    px(s, 7, 21, "gray", 10, 2)                    # trailing citation stub...
+    px(s, 19, 21, "sky", 5, 2)                     # ...that links nowhere real
+
+    # corner badge: green tick when it happens to be right, red cross when not
+    base, sheen = ("red", "pink") if lie else ("green", "lime")
+    pygame.draw.circle(s, col(base), (25, 7), 5)
+    pygame.draw.circle(s, col(sheen), (24, 6), 2)
+    if lie:
+        pygame.draw.line(s, col("white"), (22, 4), (28, 10), 1)
+        pygame.draw.line(s, col("white"), (28, 4), (22, 10), 1)
+    else:
+        pygame.draw.lines(s, col("white"), False, [(22, 7), (24, 9), (28, 4)], 1)
+    return outline(s)
 
 
 def enemy_exam_proctor(step):
-    """A surveillance webcam / AI eye with a blinking record light."""
+    """A ceiling camera that is mostly lens — an eye that never blinks.
+
+    The housing is deliberately small and the aperture huge: at battle scale the
+    only thing that has to survive is the pupil tracking you across the frames.
+    """
     s = frame_surface()
-    px(s, 6, 12, "slate", 20, 16)          # camera body
-    pygame.draw.rect(s, col("ink"), (6, 12, 20, 16), 1)
-    px(s, 13, 6, "dgray", 6, 6)            # mount
-    px(s, 15, 2, "dgray", 2, 4)
-    # lens
-    look = {0: 0, 1: 1, 2: 2, 3: 1}[step]
-    px(s, 11, 16, "cyan", 10, 8)
-    pygame.draw.rect(s, col("ink"), (11, 16, 10, 8), 1)
-    px(s, 14 + look, 18, "ink", 3, 4)      # pupil scans
-    px(s, 15 + look, 18, "white", 1, 1)
-    # record light blinks
-    if step % 2 == 0:
-        px(s, 23, 13, "red", 2, 2)
-    # stand
-    px(s, 14, 28, "dgray", 4, 12)
-    px(s, 9, 39, "dgray", 14, 2)
-    return s
+    # ceiling mount
+    px(s, 6, 0, "dgray", 20, 3)
+    px(s, 6, 0, "mgray", 20, 1)
+    px(s, 14, 3, "dgray", 4, 5)
+
+    # housing shell
+    pygame.draw.ellipse(s, col("gray"), (3, 7, 26, 26))
+    pygame.draw.ellipse(s, col("ltgray"), (5, 9, 20, 10))     # top catches light
+    pygame.draw.ellipse(s, col("mgray"), (5, 22, 22, 9))      # underside in shadow
+
+    # aperture, then the pupil sweeping left to right and back
+    pygame.draw.ellipse(s, col("ink"), (8, 12, 16, 16))
+    pygame.draw.ellipse(s, col("cyan"), (9, 13, 14, 14))
+    pygame.draw.ellipse(s, col("sky"), (10, 17, 12, 9))       # iris shades downward
+    look = [-3, 0, 3, 0][step]
+    px(s, 14 + look, 17, "ink", 4, 6)                          # pupil
+    px(s, 15 + look, 18, "white", 1, 2)                        # catchlight
+
+    # record light — on for three frames in four, so it reads as barely blinking
+    if step != 2:
+        px(s, 24, 9, "red", 3, 3)
+        px(s, 24, 9, "pink", 3, 1)
+    else:
+        px(s, 24, 9, "dred", 3, 3)
+    return outline(s)
 
 
 def enemy_study_bot(step):
-    """An overconfident study robot with a big grin on a screen face."""
+    """A study robot that is cheerfully, confidently wrong.
+
+    The grin never changes across the cycle; only the thumb pumps. Unwavering
+    friendliness is the tell — it is the sprite for an assistant that answers
+    just as brightly whether or not it knows.
+    """
     s = frame_surface()
-    bob = {0: 0, 1: 1, 2: 0, 3: 1}[step]
-    y = 6 + bob
-    px(s, 7, y, "ltgray", 18, 16)          # head
-    pygame.draw.rect(s, col("ink"), (7, y, 18, 16), 1)
-    px(s, 9, y + 2, "sky", 14, 12)         # screen
-    px(s, 11, y + 5, "white", 3, 3)        # eyes (confident)
-    px(s, 18, y + 5, "white", 3, 3)
-    px(s, 12, y + 6, "ink", 1, 1)
-    px(s, 19, y + 6, "ink", 1, 1)
-    px(s, 11, y + 10, "white", 10, 1)      # grin
-    px(s, 11, y + 9, "white", 1, 1)
-    px(s, 20, y + 9, "white", 1, 1)
-    # antenna
-    px(s, 15, y - 3, "ink", 1, 3)
-    px(s, 14, y - 5, "yellow", 3, 3)
-    # body + arms (thumbs up)
-    px(s, 10, y + 17, "mgray", 12, 12)
-    px(s, 22, y + 15, "ltgray", 3, 6)      # raised arm
-    px(s, 23, y + 12, "yellow", 2, 3)      # thumb
-    px(s, 12, y + 29, "dgray", 4, 6)
-    px(s, 16, y + 29, "dgray", 4, 6)
-    return s
+    bob = [0, 1, 2, 1][step]
+    y = 5 + bob
+
+    # antenna with a pulsing tip
+    px(s, 15, y - 5, "mgray", 2, 5)
+    tip = ["yellow", "white", "yellow", "dgold"][step]
+    px(s, 13, y - 8, tip, 5, 4)
+
+    # head casing
+    box(s, 6, y, 20, 17, "steel", "ltgray")
+    px(s, 8, y + 2, "indigo", 16, 13)                # screen bezel
+    px(s, 9, y + 3, "sky", 14, 11)                   # screen
+    px(s, 9, y + 3, "cyan", 14, 2)                   # scanline glare across the top
+    px(s, 11, y + 6, "white", 4, 4)                  # wide, guileless eyes
+    px(s, 18, y + 6, "white", 4, 4)
+    px(s, 12, y + 7, "ink", 2, 2)
+    px(s, 19, y + 7, "ink", 2, 2)
+    px(s, 11, y + 12, "white", 11, 1)                # fixed grin
+    px(s, 10, y + 11, "white", 1, 1)
+    px(s, 22, y + 11, "white", 1, 1)
+
+    # chassis
+    box(s, 9, y + 18, 14, 12, "steel", "mgray")
+    px(s, 13, y + 21, "lime", 6, 3)                  # all-clear status lamp
+    # arm pumping a thumbs-up
+    lift = [0, 1, 2, 1][step]
+    px(s, 23, y + 16 - lift, "ltgray", 3, 7)
+    px(s, 23, y + 12 - lift, "yellow", 3, 4)
+    px(s, 6, y + 19, "ltgray", 3, 7)                 # far arm hangs
+    # treads
+    px(s, 8, y + 30, "dgray", 16, 4)
+    px(s, 8, y + 30, "mgray", 16, 1)
+    return outline(s)
 
 
 ENEMY_BUILDERS = [
     ("report_due", enemy_report_due),
     ("deepfake_classmate", enemy_deepfake),
-    ("hiring_filter", enemy_hiring_filter),
+    ("misinformation", enemy_misinformation),
     ("exam_proctor", enemy_exam_proctor),
     ("study_bot", enemy_study_bot),
 ]
@@ -293,11 +470,24 @@ def build_battle_bg():
 # Track inset documented in README: 3px border all round.
 # ----------------------------------------------------------------------------
 def build_hp():
+    """A recessed groove: lit on the bottom-right, shadowed on the top-left.
+
+    The bevel runs opposite to a raised button on purpose — light falling from
+    above hits the *far* wall of a hollow, which is what sells the track as cut
+    into the panel rather than sitting on it. The 3 px inset is load-bearing:
+    ``BattleUI.draw_hp_bar`` fills the track at exactly that offset.
+    """
     s = pygame.Surface((132, 16), pygame.SRCALPHA)
-    px(s, 0, 0, "ink", 132, 16)              # outer border
-    px(s, 1, 1, "mgray", 130, 14)            # bevel
-    px(s, 3, 3, "dgray", 126, 10)            # empty track
-    px(s, 3, 3, "slate", 126, 2)             # track top shade
+    px(s, 0, 0, "ink", 132, 16)              # outer contour
+    px(s, 1, 1, "gray", 130, 14)             # frame face
+    px(s, 1, 1, "ltgray", 130, 1)            # frame catches the light on top
+    px(s, 1, 14, "dgray", 130, 1)            # and falls away underneath
+
+    px(s, 3, 3, "ink", 126, 10)              # empty track
+    px(s, 3, 3, "dgray", 126, 1)             # near wall in shadow
+    px(s, 3, 3, "dgray", 1, 10)
+    px(s, 3, 12, "mgray", 126, 1)            # far wall catches light
+    px(s, 128, 3, "mgray", 1, 10)
     return s
 
 

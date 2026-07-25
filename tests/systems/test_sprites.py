@@ -1,5 +1,5 @@
 import pygame
-from systems import sprites
+from systems import encounter_data, sprites
 
 
 def test_resolve_prefers_explicit_sprite_key():
@@ -33,3 +33,19 @@ def test_every_enemy_row_loads():
         frame = sprites.enemy_battle_frame(key)
         assert isinstance(frame, pygame.Surface)
         assert frame.get_size() == sprites.ENEMY_FRAME
+
+
+def test_every_encounter_sprite_has_a_row():
+    """Guards against a typo'd ``sprite`` silently defaulting to the wrong art.
+
+    Reads the real encounter database on purpose: a mismatch here means a
+    shipped encounter would render as ``report_due`` in battle instead of its
+    own creature, which no other test would catch.
+    """
+    database = encounter_data.load_encounters()
+    unknown = {
+        eid: enc['sprite']
+        for eid, enc in database.items()
+        if 'sprite' in enc and enc['sprite'] not in sprites.ENEMY_ROWS
+    }
+    assert not unknown, f"encounters name sprites with no row in ENEMY_ROWS: {unknown}"

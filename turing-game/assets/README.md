@@ -32,11 +32,11 @@ changes are needed. Transparent background (`SRCALPHA`) for the character sheets
 
   | Row | Sprite key            | Concept (placeholder)              |
   |-----|-----------------------|------------------------------------|
-  | 0   | `report_due`          | Paper stack + red DUE band + clock |
-  | 1   | `deepfake_classmate`  | RGB-glitching human face           |
-  | 2   | `hiring_filter`       | Funnel/sieve rejecting applicants  |
-  | 3   | `exam_proctor`        | Surveillance webcam / AI eye       |
-  | 4   | `study_bot`           | Grinning thumbs-up study robot     |
+  | 0   | `report_due`          | Leaning paper tower + deadline band + clock |
+  | 1   | `deepfake_classmate`  | Ordinary classmate face + a synthetic tell  |
+  | 2   | `misinformation`      | Reply bubble with a flip-flopping verify badge |
+  | 3   | `exam_proctor`        | Ceiling camera that is mostly lens          |
+  | 4   | `study_bot`           | Grinning thumbs-up study robot              |
 
 - Within each row: `idle` samples cols 0–1, `run` samples cols 0–3. Provide a
   4-frame loop per row. Enemies face **left** by default (engine flips for

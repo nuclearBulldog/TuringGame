@@ -101,52 +101,52 @@
       }
     ]
   },
-  "hiring_filter": {
+  "misinformation": {
     "spawn_tile": 6,
-    "sprite": "hiring_filter",
-    "enemy_name": "Biased Resume Filter",
+    "sprite": "misinformation",
+    "enemy_name": "Sketchy Results",
     "enemy_hp": 125,
     "enemy_max_hp": 125,
-    "intro_message": "The internship's AI screener keeps rejecting whole groups of applicants.",
+    "intro_message": "You ask an AI about a topic you don't know - and it answers with total confidence.",
     "moves": [
       {
-        "name": "Report the bias",
+        "name": "Verify the claims",
         "damage": 40,
-        "description": "Flag the pattern to the career office"
+        "description": "Check what it told you against a real source"
       },
       {
-        "name": "Reach a human",
+        "name": "Ask for citations",
         "damage": 35,
-        "description": "Apply through a person instead of the auto-screen"
+        "description": "Make it show where each fact came from"
       },
       {
-        "name": "Keyword-stuff it",
+        "name": "Use it as-is",
         "damage": 80,
-        "description": "Hide white-text keywords to trick the filter",
+        "description": "It sounded right, just hand it in",
         "outcome": {
           "instant_end": true,
           "win": false,
-          "message": "You hid keywords in white text. The system flagged the trick and blacklisted you.",
+          "message": "You submitted answers you never checked. Half were invented - and the marker knew the topic cold.",
           "summary_items": [
             [
-              "Tried to game the filter",
+              "Submitted unverified claims",
               true
             ],
             [
-              "Caught manipulating the system",
+              "Presented made-up facts as real",
               false
             ],
             [
-              "Application blacklisted",
+              "Marked down for misinformation",
               false
             ]
           ]
         }
       },
       {
-        "name": "Tailor honestly",
+        "name": "Skim a textbook",
         "damage": 25,
-        "description": "Match the role for real"
+        "description": "Spot-check the shakiest parts yourself"
       }
     ]
   },
