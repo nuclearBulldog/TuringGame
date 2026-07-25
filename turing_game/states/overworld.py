@@ -25,9 +25,6 @@ class Overworld(BaseState):
     defeated enemies stay gone and progress is preserved.
     """
 
-    # Seconds after (re)entering the overworld before enemy collisions can start
-    # a battle. Stops a resumed battle from re-triggering on the frame the player
-    # reappears standing on the spot where the last enemy died.
     RECOLLISION_GRACE = 0.4
 
     def __init__(self, manager: StateManager, level: Level | None = None) -> None:
@@ -51,8 +48,6 @@ class Overworld(BaseState):
         return self.level.tilemap
 
     def on_enter(self) -> None:
-        # Called each time the state becomes active, including on resume after a
-        # battle. Re-arm the grace window and clear the per-visit battle flag.
         self._battle_started = False
         self._grace_timer = self.RECOLLISION_GRACE
 
@@ -131,7 +126,7 @@ class Overworld(BaseState):
         lines = [
             f'Encounters cleared: {cleared}/{total}',
             'Move: A/D or Arrow Key Left/Arrow Key Right',
-            'Jump: Space | W | Arrow Key Up   ·   Reach the flag!',
+            'Jump: Space | W | Arrow Key Up',
         ]
 
         for i, text in enumerate(lines):

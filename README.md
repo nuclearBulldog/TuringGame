@@ -1,8 +1,7 @@
 # TuringGame
 
-A short narrative platformer with turn-based battles about the **ethical use of AI**,
-aimed at undergraduates. Explore the overworld, walk into an AI-ethics dilemma, and
-fight it out as a turn-based encounter where your choices are the moves.
+A platformer with turn based battles about the **ethical use of AI**. Explore the overworld, walk into an AI-ethics dilemma, and
+fight it out as a turn based encounter where your choices are the moves.
 
 Built with Python 3.11 + pygame.
 
@@ -39,10 +38,10 @@ sudo pacman -S git python              # Arch
 ```
 </details>
 
-> The Windows commands are untested — I don't have a Windows machine. If something
-> is off there, an issue or PR is welcome.
+> The Windows commands are untested as I do not have a Windows machine. If something
+> is off there please create an issue or PR.
 
-**Controls** — `A`/`D` or arrows to move, `Space`/`W`/`Up` to jump, arrows + `Enter`
+**Controls** ~ `A`/`D` or arrows to move, `Space`/`W`/`Up` to jump, arrows + `Enter`
 to pick a battle move, `M` to mute, `Esc` to back out.
 
 ---
@@ -52,57 +51,7 @@ to pick a battle move, `M` to mute, `Esc` to back out.
 The design goal was to keep **game rules, presentation, and content** independent of
 each other, so each can be tested or changed without touching the other two.
 
-```mermaid
-flowchart TD
-    Game["Game — loop, screen, fonts"] --> SM["StateManager — one active state"]
-    Game --> Sound[SoundManager]
-
-    SM --> Menu[MainMenu]
-    SM --> Over[Overworld]
-    SM --> Batt[BattleState]
-    SM --> Res[BattleResultState]
-    SM --> Done[LevelCompleteState]
-
-    Over --> Level["Level — persistent world state"]
-    Over --> Cam[Camera]
-    Level --> TM[TileMap]
-    Level --> Player
-    Level --> Enemy
-
-    Batt --> BS["BattleSystem — rules, no drawing"]
-    Batt --> BUI["BattleUI — drawing, no rules"]
-
-    Player --> Anim[AnimationController]
-    Enemy --> Anim
-    Anim --> Sprites["sprites → spritesheet"]
-    BUI --> Sprites
-
-    BS --> Data[("encounters.json")]
-    TM --> Data
-
-    Menu -->|Play| Over
-    Over -->|collide with enemy| Batt
-    Batt --> Res
-    Res -->|win, resume| Over
-    Over -->|reach the flag| Done
-```
-
-**Three decisions worth calling out:**
-
-- **Rules are separated from rendering.** [`BattleSystem`](turing_game/systems/battle_system.py)
-  holds the turn order, damage, and scoring and imports no drawing code at all;
-  [`BattleUI`](turing_game/ui/battle_ui.py) owns the hit-flash and shake timers. That
-  split is why the battle logic reaches 100% test coverage without ever opening a display.
-
-- **Content is data, not code.** Encounters live in
-  [`encounters.json`](turing_game/data/encounters/encounters.json) — enemy, intro text,
-  four moves, optional scripted endings, and the level tile id that spawns them. Adding
-  a new AI-ethics scenario is a JSON entry plus a tile number, no Python.
-
-- **The world persists across a battle.** [`Level`](turing_game/world/level.py) owns the
-  tile map, player, enemies, cleared set, and running score, so the
-  Overworld → Battle → Result → Overworld round trip resumes the *same* world instead
-  of rebuilding it. Defeated enemies stay defeated.
+![TuringGame module architecture](docs/architecture.drawio.svg)
 
 ### Layout
 
@@ -154,4 +103,4 @@ art. Pass `--force` only if you mean to overwrite them.
 
 ## Licence
 
-MIT — see [LICENSE.txt](LICENSE.txt).
+MIT see [LICENSE.txt](LICENSE.txt).
